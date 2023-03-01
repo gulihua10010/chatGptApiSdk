@@ -1,10 +1,7 @@
 package cn.jianwoo.openai;
 
 import java.io.File;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
-import cn.jianwoo.openai.chatgptapi.completions.FastCompletion;
 import org.junit.jupiter.api.Test;
 
 import com.alibaba.fastjson2.JSONObject;
@@ -30,6 +27,7 @@ import cn.jianwoo.openai.chatgptapi.bo.ModelRes;
 import cn.jianwoo.openai.chatgptapi.bo.ModerationsReq;
 import cn.jianwoo.openai.chatgptapi.bo.ModerationsRes;
 import cn.jianwoo.openai.chatgptapi.bo.ObjDelRes;
+import cn.jianwoo.openai.chatgptapi.completions.FastCompletion;
 import cn.jianwoo.openai.chatgptapi.exception.ApiException;
 import cn.jianwoo.openai.chatgptapi.service.PostApiService;
 import cn.jianwoo.openai.chatgptapi.service.impl.ChatGptApiPost;
@@ -41,8 +39,8 @@ import cn.jianwoo.openai.chatgptapi.service.impl.ChatGptApiPost;
  */
 public class DemoTest
 {
-    String apiKey = "sk-N*************************************goY";
-    PostApiService service = new ChatGptApiPost(new OpenAiAuth(apiKey));
+    static String apiKey = "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";
+    static PostApiService service = new ChatGptApiPost(new OpenAiAuth(apiKey));
 
     /**
      *
@@ -86,7 +84,6 @@ public class DemoTest
         System.out.println(JSONObject.toJSONString(res));
     }
 
-    private CountDownLatch lock = new CountDownLatch(1);
 
     /**
      *
@@ -94,16 +91,22 @@ public class DemoTest
      *
      * @author gulihua
      */
-    @Test
-    public void completionsStream() throws Exception
+    public static void completionsStream() throws Exception
     {
-        CompletionReq req = CompletionReq.builder().model("text-ada-001").prompt("你是什么模型").build();
+        CompletionReq req = CompletionReq.builder().model("text-davinci-003").prompt("你是什么模型").build();
         service.completionsStream(req, res -> {
             // 回调方法
-            System.out.println(JSONObject.toJSONString(res));
-            lock.countDown();
+            if (res != null)
+            {
+                System.out.println(res.getAnswer());
+            }
         });
-        lock.await(2000, TimeUnit.MILLISECONDS);
+    }
+
+
+    public static void main(String[] args) throws Exception
+    {
+        completionsStream();
     }
 
 

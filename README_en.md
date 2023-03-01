@@ -165,16 +165,22 @@ The Romance of The Three Kingdoms is a representative work of Chinese classical 
      *
      * @author gulihua
      */
-    @Test
-    public void completionsStream() throws Exception
+    public static void completionsStream() throws Exception
     {
-        CompletionReq req = CompletionReq.builder().model("text-ada-001").prompt("你是什么模型").build();
+        CompletionReq req = CompletionReq.builder().model("text-davinci-003").prompt("你是什么模型").build();
         service.completionsStream(req, res -> {
-            // 回调方法
-            System.out.println(JSONObject.toJSONString(res));
-            lock.countDown();
+            // Callback
+            if (res != null)
+            {
+                System.out.println(res.getAnswer());
+            }
         });
-        lock.await(2000, TimeUnit.MILLISECONDS);
+    }
+
+
+    public static void main(String[] args) throws Exception
+    {
+        completionsStream();
     }
 
 

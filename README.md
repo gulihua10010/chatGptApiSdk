@@ -158,7 +158,6 @@ public void fastCompletionAsk() throws ApiException {
         System.out.println(JSONObject.toJSONString(res));
     }
 
-    private CountDownLatch lock = new CountDownLatch(1);
 
     /**
      *
@@ -166,16 +165,22 @@ public void fastCompletionAsk() throws ApiException {
      *
      * @author gulihua
      */
-    @Test
-    public void completionsStream() throws Exception
+    public static void completionsStream() throws Exception
     {
-        CompletionReq req = CompletionReq.builder().model("text-ada-001").prompt("你是什么模型").build();
+        CompletionReq req = CompletionReq.builder().model("text-davinci-003").prompt("你是什么模型").build();
         service.completionsStream(req, res -> {
             // 回调方法
-            System.out.println(JSONObject.toJSONString(res));
-            lock.countDown();
+            if (res != null)
+            {
+                System.out.println(res.getAnswer());
+            }
         });
-        lock.await(2000, TimeUnit.MILLISECONDS);
+    }
+
+
+    public static void main(String[] args) throws Exception
+    {
+        completionsStream();
     }
 
 
@@ -228,7 +233,7 @@ public void fastCompletionAsk() throws ApiException {
 
     /**
      *
-     * 图像更改
+     * 图像修正
      *
      * @author gulihua
      */
