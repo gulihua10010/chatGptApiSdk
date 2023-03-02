@@ -14,7 +14,7 @@ It already supports the latest GPT3.5 model and the whisper-1 model, which suppo
 <dependency>
     <groupId>cn.jianwoo.openai</groupId>
     <artifactId>ChatGpt-API-SDK</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 
 <!--If the dependency cannot be obtained, you can specify the repository address-->
