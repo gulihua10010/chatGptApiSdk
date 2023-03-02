@@ -1,5 +1,7 @@
 package cn.jianwoo.openai.chatgptapi.service;
 
+import cn.jianwoo.openai.chatgptapi.bo.AudioReq;
+import cn.jianwoo.openai.chatgptapi.bo.AudioRes;
 import cn.jianwoo.openai.chatgptapi.bo.CompletionReq;
 import cn.jianwoo.openai.chatgptapi.bo.CompletionRes;
 import cn.jianwoo.openai.chatgptapi.bo.EmbeddingsReq;
@@ -101,6 +103,41 @@ public interface PostApiService
     void completionsStream(CompletionReq req, Callback<CompletionRes> callback) throws ApiException;
 
 
+
+    /**
+     * Create chat completion<br>
+     * Creates a completion for the chat message<br>
+     * stream = false<br>
+     *
+     * @author gulihua
+     * @param req req
+     * @return CompletionRes
+     * @throws ApiException <br>
+     *             --400001 未授权 <br>
+     *             --500001 响应JSON错误 <br>
+     *             --800001 业务错误 <br>
+     *             --900001 其他错误 <br>
+     **/
+    CompletionRes completionsChat(CompletionReq req) throws ApiException;
+
+
+    /**
+     * Create chat completion<br>
+     * Creates a completion for the chat message<br>
+     * stream = true<br>
+     *
+     * @author gulihua
+     * @param req req
+     * @param callback callback funcation
+     * @throws ApiException <br>
+     *             --400001 未授权 <br>
+     *             --500001 响应JSON错误 <br>
+     *             --800001 业务错误 <br>
+     *             --900001 其他错误 <br>
+     **/
+    void completionsChatStream(CompletionReq req, Callback<CompletionRes> callback) throws ApiException;
+
+
     /**
      * Create edit<br>
      * Creates a new edit for the provided input, instruction, and parameters.<br>
@@ -180,6 +217,36 @@ public interface PostApiService
      **/
     EmbeddingsRes embeddingsCreate(EmbeddingsReq req) throws ApiException;
 
+
+    /**
+     * Create transcription<br>
+     * Transcribes audio into the input language.<br>
+     *
+     * @author gulihua
+     * @param req req
+     * @return EmbeddingsRes
+     * @throws ApiException <br>
+     *             --400001 未授权 <br>
+     *             --500001 响应JSON错误 <br>
+     *             --800001 业务错误 <br>
+     *             --900001 其他错误 <br>
+     **/
+    AudioRes audioTranscribes(AudioReq req) throws ApiException;
+
+    /**
+     * Create translation<br>
+     * Translates audio into into English.<br>
+     *
+     * @author gulihua
+     * @param req req
+     * @return EmbeddingsRes
+     * @throws ApiException <br>
+     *             --400001 未授权 <br>
+     *             --500001 响应JSON错误 <br>
+     *             --800001 业务错误 <br>
+     *             --900001 其他错误 <br>
+     **/
+    AudioRes audioTranslates(AudioReq req) throws ApiException;
 
     /**
      * List files<br>

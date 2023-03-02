@@ -1,6 +1,8 @@
-# ChatGpt 官方API封装，开箱即用!
+# ChatGpt 官方API封装，支持 GPT3.5!开箱即用!
 
-这个 SDK 已经对接了官方的所有 SDK，包括了事件流式(text/event-stream)异步读取数据
+
+这个 SDK 已经对接了官方的所有 SDK，包括了事件流式(text/event-stream)异步读取数据,
+已经支持最新的GPT3.5模型和whisper-1模型，支持语音功能!
 
 [English Doc](README_en.md).
 
@@ -40,13 +42,24 @@
         CompletionRes res = service.completions(CompletionReq.builder().model("text-davinci-003").prompt("<问题>").build());
 
 ```
-
+### GPT-3.5
+```java
+        // 初始化服务
+        PostApiService service = new ChatGptApiPost(new OpenAiAuth("<apiKey>"));
+        // 请求服务
+        CompletionReq req = CompletionReq.builder().model(Model.GPT_35_TURBO.getName())
+            .messages(
+             Collections.singletonList(MessageReq.builder().role(Role.USER.getName()).content("你好").build()))
+        .build();
+        CompletionRes res = service.completionsChat(req);
+        System.out.println(JSONObject.toJSONString(res))
+```
 ### 使用代理
 
 ```java
         // 初始化服务
         // <host>不带 http或者https前缀!
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("<host>","<port>"))
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("<host>","<port>"));
         PostApiService service = new ChatGptApiPost(new OpenAiAuth("<apiKey>", proxy));
         // 请求服务
         CompletionRes res = service.completions(CompletionReq.builder().model("text-davinci-003").prompt("<问题>").build());
@@ -69,6 +82,7 @@
 ### 快速使用
 ```java
   System.out.println(FastCompletion.ask("<apiKey>","介绍一下《三国演义》这本书"));
+  System.out.println(FastCompletion.chat("<apiKey>","介绍一下《三国演义》这本书"));
 ```
 
 ### 根据描述生成图片
@@ -78,12 +92,22 @@
         .imageCreate(ImageReq.builder().prompt(prompt).build());
         return res.getData().get(0).getUrl();
 ```
+### 音频转录
+```java
+        File audio = new File("/Users/gulihua/Downloads/audio.mp3");
+        AudioReq req = AudioReq.builder().file(audio).build();
+        AudioRes res = service.audioTranscribes(req);
+        System.out.println(JSONObject.toJSONString(res));
+```
+
 ## 已完成接口列表：
 - [x] Models
 - [x] Completions
+- [x] Chat
 - [x] Edits
 - [x] Images
 - [x] Embeddings
+- [x] Audio
 - [x] Files
 - [x] Fine-tunes
 - [x] Moderations
@@ -178,11 +202,51 @@ public void fastCompletionAsk() throws ApiException {
     }
 
 
-    public static void main(String[] args) throws Exception
+    /**
+     *
+     * 使用gpt-3.5-turbo模型聊天
+     *
+     * @author gulihua
+     */
+     @Test
+    public void completionsChat() throws ApiException
     {
-        completionsStream();
+        CompletionReq req = CompletionReq.builder().model(Model.GPT_35_TURBO.getName())
+        .messages(
+        Collections.singletonList(MessageReq.builder().role(Role.USER.getName()).content("你好").build()))
+        .build();
+        CompletionRes res = service.completionsChat(req);
+        System.out.println(JSONObject.toJSONString(res));
     }
 
+
+    /**
+     *
+     * 使用gpt-3.5-turbo模型聊天(流式)
+     *
+     * @author gulihua
+     */
+    public static void completionsChatStream() throws Exception
+    {
+        CompletionReq req = CompletionReq.builder().model(Model.GPT_35_TURBO.getName())
+        .messages(
+                Collections.singletonList(MessageReq.builder().role(Role.USER.getName()).content("你好").build()))
+        .build();
+        service.completionsChatStream(req, res -> {
+        // 回调方法
+        if (res != null)
+        {
+            System.out.println(res.getChatContent());
+        }
+        });
+    }
+
+
+    public static void main(String[] args) throws Exception
+    {
+//        completionsStream();
+        completionsChatStream();
+    }
 
     /**
      *
@@ -263,6 +327,39 @@ public void fastCompletionAsk() throws ApiException {
     }
 
 
+
+    /**
+     *
+     * 语音转录
+     *
+     * @author gulihua
+     */
+    @Test
+    public void audioTranscribes() throws ApiException
+    {
+        File audio = new File("/Users/gulihua/Downloads/audio.mp3");
+        AudioReq req = AudioReq.builder().file(audio).build();
+        AudioRes res = service.audioTranscribes(req);
+        System.out.println(JSONObject.toJSONString(res));
+    }
+
+
+    /**
+     *
+     * 语音翻译
+     *
+     * @author gulihua
+     */
+    @Test
+    public void audioTranslates() throws ApiException
+    {
+        File audio = new File("/Users/gulihua/Downloads/audio.mp3");
+        AudioReq req = AudioReq.builder().file(audio).build();
+        AudioRes res = service.audioTranslates(req);
+        System.out.println(JSONObject.toJSONString(res));
+    }
+        
+        
     /**
      *
      * 列出所有用户上传的文件
@@ -475,8 +572,19 @@ public void fastCompletionAsk() throws ApiException {
     {
         System.out.println(FastCompletion.ask(apiKey, "介绍一下《三国演义》这本书"));
     }
-
-
+    
+    /**
+     *
+     * 快速创建聊天
+     *
+     * @author gulihua
+     */
+    @Test
+    public void fastCompletionChat() throws ApiException
+    {
+        System.out.println(FastCompletion.chat(apiKey, "介绍一下《三国演义》这本书"));
+    }
+    
     /**
      *
      * 快速生成图像

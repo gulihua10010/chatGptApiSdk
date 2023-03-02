@@ -3,7 +3,8 @@ package cn.jianwoo.openai.chatgptapi.stream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.nio.CharBuffer;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -11,7 +12,7 @@ import java.security.cert.X509Certificate;
 
 import javax.net.ssl.SSLContext;
 
-import cn.jianwoo.openai.chatgptapi.exception.ApiException;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
@@ -21,6 +22,7 @@ import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.entity.ContentType;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
@@ -29,7 +31,7 @@ import org.apache.http.impl.nio.conn.PoolingNHttpClientConnectionManager;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.client.methods.AsyncCharConsumer;
+import org.apache.http.nio.client.methods.AsyncByteConsumer;
 import org.apache.http.nio.client.methods.HttpAsyncMethods;
 import org.apache.http.nio.conn.NoopIOSessionStrategy;
 import org.apache.http.nio.conn.SchemeIOSessionStrategy;
@@ -37,6 +39,7 @@ import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.protocol.HttpContext;
 
+import cn.jianwoo.openai.chatgptapi.exception.ApiException;
 import lombok.extern.log4j.Log4j2;
 
 /**
@@ -123,28 +126,31 @@ public class HttpAsyncClientUtil
     {
         log.info(">>>>ApacheHttpClient.exec...");
 
-        AsyncCharConsumer<HttpResponse> charConsumer = new AsyncCharConsumer<HttpResponse>() {
+        AsyncByteConsumer<HttpResponse> charConsumer = new AsyncByteConsumer<HttpResponse>() {
             HttpResponse response;
 
-            protected void onCharReceived(CharBuffer buf, IOControl ioctrl) throws IOException
+            @Override
+            protected void onByteReceived(ByteBuffer byteBuffer, IOControl ioControl) throws IOException
             {
-                log.info(">>>>AsyncCharConsumer.onCharReceived...");
-                StringBuilder sb = new StringBuilder();
-                while (buf.hasRemaining())
-                {
-                    sb.append(buf.get());
-                }
+                log.info(">>>>AsyncByteConsumer.onCharReceived...");
+                byte[] bytes = byteBuffer.array();
+                String content = new String(bytes, StandardCharsets.UTF_8);
                 if (null != callback)
                 {
-                    callback.call(sb.toString());
+                    callback.call(content);
                 }
             }
 
 
-            protected void onResponseReceived(HttpResponse response)
+            protected void onResponseReceived(HttpResponse response) throws IOException
             {
                 log.info("response.StatusCode{}", response.getStatusLine().getStatusCode());
                 this.response = response;
+                HttpEntity entity = response.getEntity();
+                if (entity != null)
+                {
+                    this.onEntityEnclosed(entity, ContentType.APPLICATION_JSON);
+                }
             }
 
 

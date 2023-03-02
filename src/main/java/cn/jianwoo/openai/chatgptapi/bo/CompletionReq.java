@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author gulihua
@@ -23,6 +24,9 @@ public class CompletionReq implements Serializable
      * our ModelRes overview for descriptions of them.
      */
     private String model;
+
+    /**The messages to generate chat completions for, in the chat format.*/
+    private List<MessageReq> messages;
 
     /**
      * The prompt(s) to generate completions for, encoded as a string, array of strings, array of tokens, or array of

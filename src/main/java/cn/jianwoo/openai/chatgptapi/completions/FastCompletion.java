@@ -6,10 +6,15 @@ import cn.jianwoo.openai.chatgptapi.bo.CompletionReq;
 import cn.jianwoo.openai.chatgptapi.bo.CompletionRes;
 import cn.jianwoo.openai.chatgptapi.bo.ImageReq;
 import cn.jianwoo.openai.chatgptapi.bo.ImageRes;
+import cn.jianwoo.openai.chatgptapi.bo.MessageReq;
+import cn.jianwoo.openai.chatgptapi.constants.Model;
+import cn.jianwoo.openai.chatgptapi.constants.Role;
 import cn.jianwoo.openai.chatgptapi.exception.ApiException;
 import com.alibaba.fastjson2.JSONObject;
+import sun.misc.resources.Messages;
 
 import java.net.Proxy;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 /**
@@ -32,7 +37,7 @@ public class FastCompletion
     public static String ask(String apiKey, String prompt) throws ApiException
     {
         CompletionRes res = OpenAiAuth.builder().apiKey(apiKey).post()
-                .completions(CompletionReq.builder().model("text-davinci-003").prompt(prompt).build());
+                .completions(CompletionReq.builder().model(Model.TEXT_DAVINCI_003.getName()).prompt(prompt).build());
         return res.getAnswer();
     }
 
@@ -48,7 +53,44 @@ public class FastCompletion
     public static String ask(String apiKey, Proxy proxy, String prompt) throws ApiException
     {
         CompletionRes res = OpenAiAuth.builder().apiKey(apiKey).proxy(proxy).post()
-                .completions(CompletionReq.builder().model("text-davinci-003").prompt(prompt).build());
+                .completions(CompletionReq.builder().model(Model.TEXT_DAVINCI_003.getName()).prompt(prompt).build());
+        return res.getChoices().stream().map(Choices::getText).collect(Collectors.joining());
+    }
+
+
+    /***
+     * 快速聊天
+     *
+     * @param apiKey API KEY
+     * @param content 内容
+     * @return 答案
+     */
+    public static String chat(String apiKey, String content) throws ApiException
+    {
+        CompletionRes res = OpenAiAuth.builder().apiKey(apiKey).post()
+                .completionsChat(CompletionReq.builder().model(Model.GPT_35_TURBO.getName())
+                        .messages(Collections
+                                .singletonList(MessageReq.builder().role(Role.USER.getName()).content(content).build()))
+                        .build());
+        return res.getChatContent();
+    }
+
+
+    /***
+     * 快速聊天
+     *
+     * @param apiKey API KEY
+     * @param content 内容
+     * @param proxy 代理
+     * @return 答案
+     */
+    public static String chat(String apiKey, Proxy proxy, String content) throws ApiException
+    {
+        CompletionRes res = OpenAiAuth.builder().apiKey(apiKey).proxy(proxy).post()
+                .completionsChat(CompletionReq.builder().model(Model.GPT_35_TURBO.getName())
+                        .messages(Collections
+                                .singletonList(MessageReq.builder().role(Role.USER.getName()).content(content).build()))
+                        .build());
         return res.getChoices().stream().map(Choices::getText).collect(Collectors.joining());
     }
 

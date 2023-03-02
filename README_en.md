@@ -1,6 +1,8 @@
-# ChatGpt official API package, out of the box!
+# ChatGpt official API package, GPT3.5 support! out of the box!
 
 This SDK has been connected to all official SDKS, including text/event-stream asynchronously read data
+It already supports the latest GPT3.5 model and the whisper-1 model, which supports voice function!
+
 [中文文档](README.md).
 
 ## Usage
@@ -39,6 +41,18 @@ This SDK has been connected to all official SDKS, including text/event-stream as
         CompletionRes res = service.completions(CompletionReq.builder().model("text-davinci-003").prompt("<问题>").build());
 
 ```
+### GPT-3.5
+```java
+        // 初始化服务
+        PostApiService service = new ChatGptApiPost(new OpenAiAuth("<apiKey>"));
+        // 请求服务
+        CompletionReq req = CompletionReq.builder().model(Model.GPT_35_TURBO.getName())
+            .messages(
+             Collections.singletonList(MessageReq.builder().role(Role.USER.getName()).content("你好").build()))
+        .build();
+        CompletionRes res = service.completionsChat(req);
+        System.out.println(JSONObject.toJSONString(res))
+```
 
 ### Use Proxy
 
@@ -68,7 +82,9 @@ This SDK has been connected to all official SDKS, including text/event-stream as
 ```
 ### Quick Start
 ```java
-  System.out.println(FastCompletion.ask("<apiKey>","介绍一下《三国演义》这本书"));
+    System.out.println(FastCompletion.ask("<apiKey>","介绍一下《三国演义》这本书"));
+    System.out.println(FastCompletion.chat("<apiKey>","介绍一下《三国演义》这本书"));
+
 ```
 
 ### Generate a picture from the description
@@ -78,12 +94,22 @@ This SDK has been connected to all official SDKS, including text/event-stream as
         .imageCreate(ImageReq.builder().prompt(prompt).build());
         return res.getData().get(0).getUrl();
 ```
+
+### Audio transcription
+```java
+        File audio = new File("/Users/gulihua/Downloads/audio.mp3");
+        AudioReq req = AudioReq.builder().file(audio).build();
+        AudioRes res = service.audioTranscribes(req);
+        System.out.println(JSONObject.toJSONString(res));
+```
 ## List of completed interfaces:
 - [x] Models
 - [x] Completions
+- [x] Chat
 - [x] Edits
 - [x] Images
 - [x] Embeddings
+- [x] Audio
 - [x] Files
 - [x] Fine-tunes
 - [x] Moderations
@@ -178,11 +204,52 @@ The Romance of The Three Kingdoms is a representative work of Chinese classical 
     }
 
 
-    public static void main(String[] args) throws Exception
+
+    /**
+     *
+     * Create chat completion
+     *
+     * @author gulihua
+     */
+    @Test
+    public void completionsChat() throws ApiException
     {
-        completionsStream();
+        CompletionReq req = CompletionReq.builder().model(Model.GPT_35_TURBO.getName())
+        .messages(
+            Collections.singletonList(MessageReq.builder().role(Role.USER.getName()).content("你好").build()))
+        .build();
+        CompletionRes res = service.completionsChat(req);
+        System.out.println(JSONObject.toJSONString(res));
+        }
+
+
+    /**
+     *
+     * Create chat completion(text/event-stream)
+     *
+     * @author gulihua
+     */
+    public static void completionsChatStream() throws Exception
+    {
+        CompletionReq req = CompletionReq.builder().model(Model.GPT_35_TURBO.getName())
+        .messages(
+            Collections.singletonList(MessageReq.builder().role(Role.USER.getName()).content("你好").build()))
+        .build();
+        service.completionsChatStream(req, res -> {
+        // 回调方法
+        if (res != null)
+        {
+            System.out.println(res.getChatContent());
+        }
+        });
     }
 
+
+    public static void main(String[] args) throws Exception
+    {
+    //        completionsStream();
+        completionsChatStream();
+    }
 
     /**
      *
@@ -263,6 +330,37 @@ The Romance of The Three Kingdoms is a representative work of Chinese classical 
     }
 
 
+    /**
+     *
+     * Create transcription
+     *
+     * @author gulihua
+     */
+    @Test
+    public void audioTranscribes() throws ApiException
+    {
+        File audio = new File("/Users/gulihua/Downloads/audio.mp3");
+        AudioReq req = AudioReq.builder().file(audio).build();
+        AudioRes res = service.audioTranscribes(req);
+        System.out.println(JSONObject.toJSONString(res));
+    }
+
+
+    /**
+     *
+     * Create translation
+     *
+     * @author gulihua
+     */
+    @Test
+    public void audioTranslates() throws ApiException
+    {
+        File audio = new File("/Users/gulihua/Downloads/audio.mp3");
+        AudioReq req = AudioReq.builder().file(audio).build();
+        AudioRes res = service.audioTranslates(req);
+        System.out.println(JSONObject.toJSONString(res));
+    }
+        
     /**
      *
      * List files
@@ -476,6 +574,17 @@ The Romance of The Three Kingdoms is a representative work of Chinese classical 
         System.out.println(FastCompletion.ask(apiKey, "介绍一下《三国演义》这本书"));
     }
 
+    /**
+     *
+     * Chat Fastly
+     *
+     * @author gulihua
+     */
+    @Test
+    public void fastCompletionChat() throws ApiException
+    {
+        System.out.println(FastCompletion.chat(apiKey, "介绍一下《三国演义》这本书"));
+    }
 
     /**
      *

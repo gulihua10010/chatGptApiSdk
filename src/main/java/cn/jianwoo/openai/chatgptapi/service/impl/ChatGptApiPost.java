@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.jianwoo.openai.chatgptapi.bo.AudioReq;
+import cn.jianwoo.openai.chatgptapi.bo.AudioRes;
 import cn.jianwoo.openai.chatgptapi.bo.EmbeddingsReq;
 import cn.jianwoo.openai.chatgptapi.bo.EmbeddingsRes;
 import cn.jianwoo.openai.chatgptapi.bo.EnginesDataRes;
@@ -209,7 +211,7 @@ public class ChatGptApiPost implements PostApiService
         request.setEntity(requestEntity);
 
         HttpAsyncClientUtil.execute(asyncClient, request, param -> {
-            log.debug(">>>>conversation res:: {}", param);
+            log.debug(">>>>completionsStream res:: {}", param);
             try
             {
                 CompletionRes resBO = parseConversation(param);
@@ -218,6 +220,77 @@ public class ChatGptApiPost implements PostApiService
             catch (Exception e)
             {
                 log.error(">>>>completionsStream.parseConversation.exec.exception, e:", e);
+                throw new RuntimeException(e);
+            }
+
+        });
+    }
+
+
+    @Override
+    public CompletionRes completionsChat(CompletionReq req) throws ApiException
+    {
+
+        req.setStream(false);
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", auth.getApiKey());
+        HttpResponse response = HttpRequest.post(BASE_URL + "/chat/completions").headerMap(headers, true)
+                .body(JSONObject.toJSONString(req)).setProxy(auth.getProxy()).execute();
+
+        if (response.getStatus() == 401)
+        {
+            log.error(">>>>completionsChat.response:{}", response.body());
+            throw new ApiException(AUTHORIZATION_ERROR, AUTHORIZATION_ERROR_MSG);
+        }
+        if (response.getStatus() != 200)
+        {
+            log.error(">>>>completionsChat.response:{}", response.body());
+
+            ErrorRes error = JSON.parseObject(response.body(), ErrorRes.class);
+            throw new ApiException(OTHER_ERROR, error.getError().getMessage());
+
+        }
+        try
+        {
+            return JSON.parseObject(response.body(), CompletionRes.class);
+        }
+        catch (Exception e)
+        {
+            log.error(">>>>completionsChat.response:{}", response.body());
+            log.error(">>>>completionsChat.response.parse.exception, e:", e);
+            throw new ApiException(JSON_ERROR, JSON_ERROR_MSG);
+
+        }
+    }
+
+
+    @Override
+    public void completionsChatStream(CompletionReq req, Callback<CompletionRes> callback) throws ApiException
+    {
+
+        req.setStream(true);
+        HttpPost request = new HttpPost(BASE_URL + "/chat/completions");
+        request.addHeader("Accept", "text/event-stream");
+        request.addHeader("Authorization", auth.getApiKey());
+        request.addHeader("Content-Type", "application/json;charset=utf-8");
+
+        CloseableHttpAsyncClient asyncClient = HttpAsyncClientUtil.getHttpAsyncClient(auth.getProxy());
+        asyncClient.start();
+        StringEntity requestEntity = new StringEntity(JSONObject.toJSONString(req), "utf-8");
+        request.setEntity(requestEntity);
+        requestEntity.setContentEncoding("UTF-8");
+        requestEntity.setContentType("application/json;charset=utf-8");
+        HttpAsyncClientUtil.execute(asyncClient, request, param -> {
+            log.debug(">>>>completionsChatStream res:: {}", param);
+            try
+            {
+                CompletionRes resBO = parseConversation(param);
+                log.debug(">>>>>>>completionsChatStreamd {}", JSON.toJSONString(resBO));
+                callback.call(resBO);
+            }
+            catch (Exception e)
+            {
+                log.error(">>>>completionsChatStream.parseConversation.exec.exception, e:", e);
                 throw new RuntimeException(e);
             }
 
@@ -411,6 +484,84 @@ public class ChatGptApiPost implements PostApiService
         {
             log.error(">>>>embeddingsCreate.response:{}", response.body());
             log.error(">>>>embeddingsCreate.response.parse.exception, e:", e);
+            throw new ApiException(JSON_ERROR, JSON_ERROR_MSG);
+
+        }
+    }
+
+
+    @Override
+    public AudioRes audioTranscribes(AudioReq req) throws ApiException
+    {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", auth.getApiKey());
+        HashMap<String, Object> paramMap = new HashMap<>();
+        paramMap.put("file", req.getFile());
+        paramMap.put("model", req.getModel());
+
+        HttpResponse response = HttpRequest.post(BASE_URL + "/audio/transcriptions").headerMap(headers, true)
+                .form(paramMap).setProxy(auth.getProxy()).execute();
+
+        if (response.getStatus() == 401)
+        {
+            log.error(">>>>audioTranscribes.response:{}", response.body());
+            throw new ApiException(AUTHORIZATION_ERROR, AUTHORIZATION_ERROR_MSG);
+        }
+        if (response.getStatus() != 200)
+        {
+            log.error(">>>>audioTranscribes.response:{}", response.body());
+
+            ErrorRes error = JSON.parseObject(response.body(), ErrorRes.class);
+            throw new ApiException(OTHER_ERROR, error.getError().getMessage());
+
+        }
+        try
+        {
+            return JSON.parseObject(response.body(), AudioRes.class);
+        }
+        catch (Exception e)
+        {
+            log.error(">>>>audioTranscribes.response:{}", response.body());
+            log.error(">>>>audioTranscribes.response.parse.exception, e:", e);
+            throw new ApiException(JSON_ERROR, JSON_ERROR_MSG);
+
+        }
+    }
+
+
+    @Override
+    public AudioRes audioTranslates(AudioReq req) throws ApiException
+    {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", auth.getApiKey());
+        HashMap<String, Object> paramMap = new HashMap<>();
+        paramMap.put("file", req.getFile());
+        paramMap.put("model", req.getModel());
+
+        HttpResponse response = HttpRequest.post(BASE_URL + "/audio/translations").headerMap(headers, true)
+                .form(paramMap).setProxy(auth.getProxy()).execute();
+
+        if (response.getStatus() == 401)
+        {
+            log.error(">>>>audioTranslates.response:{}", response.body());
+            throw new ApiException(AUTHORIZATION_ERROR, AUTHORIZATION_ERROR_MSG);
+        }
+        if (response.getStatus() != 200)
+        {
+            log.error(">>>>audioTranslates.response:{}", response.body());
+
+            ErrorRes error = JSON.parseObject(response.body(), ErrorRes.class);
+            throw new ApiException(OTHER_ERROR, error.getError().getMessage());
+
+        }
+        try
+        {
+            return JSON.parseObject(response.body(), AudioRes.class);
+        }
+        catch (Exception e)
+        {
+            log.error(">>>>audioTranslates.response:{}", response.body());
+            log.error(">>>>audioTranslates.response.parse.exception, e:", e);
             throw new ApiException(JSON_ERROR, JSON_ERROR_MSG);
 
         }

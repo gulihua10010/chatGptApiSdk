@@ -1,7 +1,15 @@
 package cn.jianwoo.openai;
 
 import java.io.File;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.util.Collections;
 
+import cn.jianwoo.openai.chatgptapi.bo.AudioReq;
+import cn.jianwoo.openai.chatgptapi.bo.AudioRes;
+import cn.jianwoo.openai.chatgptapi.bo.MessageReq;
+import cn.jianwoo.openai.chatgptapi.constants.Model;
+import cn.jianwoo.openai.chatgptapi.constants.Role;
 import org.junit.jupiter.api.Test;
 
 import com.alibaba.fastjson2.JSONObject;
@@ -39,8 +47,10 @@ import cn.jianwoo.openai.chatgptapi.service.impl.ChatGptApiPost;
  */
 public class DemoTest
 {
-    static String apiKey = "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";
-    static PostApiService service = new ChatGptApiPost(new OpenAiAuth(apiKey));
+    static Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 7890));
+
+    static String apiKey = "sk-******************************************zeYL";
+    static PostApiService service = new ChatGptApiPost(new OpenAiAuth(apiKey, proxy));
 
     /**
      *
@@ -79,7 +89,7 @@ public class DemoTest
     @Test
     public void completions() throws ApiException
     {
-        CompletionReq req = CompletionReq.builder().model("text-ada-001").prompt("你好").build();
+        CompletionReq req = CompletionReq.builder().model(Model.TEXT_DAVINCI_003.getName()).prompt("你好").build();
         CompletionRes res = service.completions(req);
         System.out.println(JSONObject.toJSONString(res));
     }
@@ -93,7 +103,7 @@ public class DemoTest
      */
     public static void completionsStream() throws Exception
     {
-        CompletionReq req = CompletionReq.builder().model("text-davinci-003").prompt("你是什么模型").build();
+        CompletionReq req = CompletionReq.builder().model(Model.TEXT_DAVINCI_003.getName()).prompt("你是什么模型").build();
         service.completionsStream(req, res -> {
             // 回调方法
             if (res != null)
@@ -103,10 +113,50 @@ public class DemoTest
         });
     }
 
+    /**
+     *
+     * 使用gpt-3.5-turbo模型聊天
+     *
+     * @author gulihua
+     */
+    @Test
+    public void completionsChat() throws ApiException
+    {
+        CompletionReq req = CompletionReq.builder().model(Model.GPT_35_TURBO.getName())
+                .messages(
+                        Collections.singletonList(MessageReq.builder().role(Role.USER.getName()).content("你好").build()))
+                .build();
+        CompletionRes res = service.completionsChat(req);
+        System.out.println(JSONObject.toJSONString(res));
+    }
+
+
+    /**
+     *
+     * 使用gpt-3.5-turbo模型聊天(流式)
+     *
+     * @author gulihua
+     */
+    public static void completionsChatStream() throws Exception
+    {
+        CompletionReq req = CompletionReq.builder().model(Model.GPT_35_TURBO.getName())
+                .messages(
+                        Collections.singletonList(MessageReq.builder().role(Role.USER.getName()).content("你好").build()))
+                .build();
+        service.completionsChatStream(req, res -> {
+            // 回调方法
+            if (res != null)
+            {
+                System.out.println(res.getChatContent());
+            }
+        });
+    }
+
 
     public static void main(String[] args) throws Exception
     {
-        completionsStream();
+//        completionsStream();
+        completionsChatStream();
     }
 
 
@@ -182,9 +232,41 @@ public class DemoTest
     @Test
     public void embeddingsCreate() throws ApiException
     {
-        EmbeddingsReq req = EmbeddingsReq.builder().model("text-embedding-ada-002")
+        EmbeddingsReq req = EmbeddingsReq.builder().model(Model.TEXT_EMBEDDING_ADA_002.getName())
                 .input("he food was delicious and the waiter...").build();
         EmbeddingsRes res = service.embeddingsCreate(req);
+        System.out.println(JSONObject.toJSONString(res));
+    }
+
+
+    /**
+     *
+     * 语音转录
+     *
+     * @author gulihua
+     */
+    @Test
+    public void audioTranscribes() throws ApiException
+    {
+        File audio = new File("/Users/gulihua/Downloads/audio.mp3");
+        AudioReq req = AudioReq.builder().file(audio).build();
+        AudioRes res = service.audioTranscribes(req);
+        System.out.println(JSONObject.toJSONString(res));
+    }
+
+
+    /**
+     *
+     * 语音翻译
+     *
+     * @author gulihua
+     */
+    @Test
+    public void audioTranslates() throws ApiException
+    {
+        File audio = new File("/Users/gulihua/Downloads/audio.mp3");
+        AudioReq req = AudioReq.builder().file(audio).build();
+        AudioRes res = service.audioTranslates(req);
         System.out.println(JSONObject.toJSONString(res));
     }
 
@@ -402,6 +484,18 @@ public class DemoTest
         System.out.println(FastCompletion.ask(apiKey, "介绍一下《三国演义》这本书"));
     }
 
+
+    /**
+     *
+     * 快速创建聊天
+     *
+     * @author gulihua
+     */
+    @Test
+    public void fastCompletionChat() throws ApiException
+    {
+        System.out.println(FastCompletion.chat(apiKey, "介绍一下《三国演义》这本书"));
+    }
 
     /**
      *

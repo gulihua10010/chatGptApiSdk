@@ -25,6 +25,10 @@ public class Choices implements Serializable
 
     private String logprobs;
 
+    private MessageReq message;
+    // stream 式返回为这个字段
+    private MessageReq delta;
+
     @JSONField(name = "finish_reason")
     private String finishReason;
 
