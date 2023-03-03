@@ -15,7 +15,7 @@
 <dependency>
     <groupId>cn.jianwoo.openai</groupId>
     <artifactId>ChatGpt-API-SDK</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 
 <!--如果获取不到依赖，可以指定下仓库地址-->
@@ -72,11 +72,9 @@
     public void completionsStream() throws Exception {
         CompletionReq req = CompletionReq.builder().model("text-ada-001").prompt("介绍下《水浒传》这本书").build();
         service.completionsStream(req, res -> {
-        // 回调方法
-        System.out.println(JSONObject.toJSONString(res));
-        lock.countDown();
+            // 回调方法
+            System.out.println(JSONObject.toJSONString(res));
         });
-        lock.await(2000, TimeUnit.MILLISECONDS);
     }
 ```
 ### 快速使用
@@ -112,6 +110,12 @@
 - [x] Fine-tunes
 - [x] Moderations
 - [x] Engines
+
+
+## 常用的模型枚举
+```java
+cn.jianwoo.openai.chatgptapi.constants.Model
+```
 
 ## 示例
 ![sample_code_1.png](sample_code_1.png)

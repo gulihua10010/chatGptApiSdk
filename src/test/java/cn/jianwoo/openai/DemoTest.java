@@ -49,7 +49,7 @@ public class DemoTest
 {
     static Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 7890));
 
-    static String apiKey = "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";
+    static String apiKey = "sk-********************************zeYL";
     static PostApiService service = new ChatGptApiPost(new OpenAiAuth(apiKey, proxy));
 
     /**

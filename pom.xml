@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.jianwoo.openai</groupId>
     <artifactId>ChatGpt-API-SDK</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <name>fundebug-java-notifier</name>
     <url>https://github.com/gulihua10010/openAiAuth</url>
     <description>openAI/chatGpt User name and password Authorized login The jar package is encapsulated</description>

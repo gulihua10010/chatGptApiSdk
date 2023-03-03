@@ -14,7 +14,7 @@ It already supports the latest GPT3.5 model and the whisper-1 model, which suppo
 <dependency>
     <groupId>cn.jianwoo.openai</groupId>
     <artifactId>ChatGpt-API-SDK</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 </dependency>
 
 <!--If the dependency cannot be obtained, you can specify the repository address-->
@@ -73,11 +73,9 @@ It already supports the latest GPT3.5 model and the whisper-1 model, which suppo
     public void completionsStream() throws Exception {
         CompletionReq req = CompletionReq.builder().model("text-ada-001").prompt("介绍下《水浒传》这本书").build();
         service.completionsStream(req, res -> {
-        // Callback
-        System.out.println(JSONObject.toJSONString(res));
-        lock.countDown();
+             // Callback
+             System.out.println(JSONObject.toJSONString(res));
         });
-        lock.await(2000, TimeUnit.MILLISECONDS);
     }
 ```
 ### Quick Start
@@ -114,6 +112,12 @@ It already supports the latest GPT3.5 model and the whisper-1 model, which suppo
 - [x] Fine-tunes
 - [x] Moderations
 - [x] Engines
+
+
+## Common model enumeration
+```java
+cn.jianwoo.openai.chatgptapi.constants.Model
+```
 
 ## Example
 ![sample_code_1.png](sample_code_1.png)
