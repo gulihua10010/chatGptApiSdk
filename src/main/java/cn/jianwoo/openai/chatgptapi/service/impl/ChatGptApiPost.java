@@ -4,48 +4,51 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import cn.jianwoo.openai.chatgptapi.bo.AudioReq;
-import cn.jianwoo.openai.chatgptapi.bo.AudioRes;
-import cn.jianwoo.openai.chatgptapi.bo.EmbeddingsReq;
-import cn.jianwoo.openai.chatgptapi.bo.EmbeddingsRes;
-import cn.jianwoo.openai.chatgptapi.bo.EnginesDataRes;
-import cn.jianwoo.openai.chatgptapi.bo.EnginesListRes;
-import cn.jianwoo.openai.chatgptapi.bo.EventListRes;
-import cn.jianwoo.openai.chatgptapi.bo.FineTuneListRes;
-import cn.jianwoo.openai.chatgptapi.bo.FineTunesReq;
-import cn.jianwoo.openai.chatgptapi.bo.FineTunesRes;
-import cn.jianwoo.openai.chatgptapi.bo.ModerationsReq;
-import cn.jianwoo.openai.chatgptapi.bo.ModerationsRes;
-import cn.jianwoo.openai.chatgptapi.bo.ObjDelRes;
-import cn.jianwoo.openai.chatgptapi.bo.FileDetRes;
-import cn.jianwoo.openai.chatgptapi.bo.FileListRes;
-import cn.jianwoo.openai.chatgptapi.bo.FileReq;
-import cn.jianwoo.openai.chatgptapi.bo.ModelRes;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import java.util.Optional;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.ContentType;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.jianwoo.openai.chatgptapi.auth.OpenAiAuth;
+import cn.jianwoo.openai.chatgptapi.bo.AudioReq;
+import cn.jianwoo.openai.chatgptapi.bo.AudioRes;
 import cn.jianwoo.openai.chatgptapi.bo.Choices;
 import cn.jianwoo.openai.chatgptapi.bo.CompletionReq;
 import cn.jianwoo.openai.chatgptapi.bo.CompletionRes;
+import cn.jianwoo.openai.chatgptapi.bo.EmbeddingsReq;
+import cn.jianwoo.openai.chatgptapi.bo.EmbeddingsRes;
+import cn.jianwoo.openai.chatgptapi.bo.EnginesDataRes;
+import cn.jianwoo.openai.chatgptapi.bo.EnginesListRes;
 import cn.jianwoo.openai.chatgptapi.bo.ErrorRes;
+import cn.jianwoo.openai.chatgptapi.bo.EventListRes;
+import cn.jianwoo.openai.chatgptapi.bo.FileDetRes;
+import cn.jianwoo.openai.chatgptapi.bo.FileListRes;
+import cn.jianwoo.openai.chatgptapi.bo.FileReq;
+import cn.jianwoo.openai.chatgptapi.bo.FineTuneListRes;
+import cn.jianwoo.openai.chatgptapi.bo.FineTunesReq;
+import cn.jianwoo.openai.chatgptapi.bo.FineTunesRes;
 import cn.jianwoo.openai.chatgptapi.bo.ImageReq;
 import cn.jianwoo.openai.chatgptapi.bo.ImageRes;
+import cn.jianwoo.openai.chatgptapi.bo.MessageReq;
 import cn.jianwoo.openai.chatgptapi.bo.ModelDataRes;
+import cn.jianwoo.openai.chatgptapi.bo.ModelRes;
+import cn.jianwoo.openai.chatgptapi.bo.ModerationsReq;
+import cn.jianwoo.openai.chatgptapi.bo.ModerationsRes;
+import cn.jianwoo.openai.chatgptapi.bo.ObjDelRes;
 import cn.jianwoo.openai.chatgptapi.exception.ApiException;
 import cn.jianwoo.openai.chatgptapi.service.PostApiService;
 import cn.jianwoo.openai.chatgptapi.stream.Callback;
 import cn.jianwoo.openai.chatgptapi.stream.HttpAsyncClientUtil;
 import lombok.extern.log4j.Log4j2;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 
 /**
  * ChatGpt API封装<br>
@@ -200,18 +203,13 @@ public class ChatGptApiPost implements PostApiService
     public void completionsStream(CompletionReq req, Callback<CompletionRes> callback) throws ApiException
     {
         req.setStream(true);
-        HttpPost request = new HttpPost(BASE_URL + "/completions");
-        request.addHeader("Accept", "text/event-stream");
-        request.addHeader("Authorization", auth.getApiKey());
-        request.addHeader("Content-Type", "application/json");
+        Request request = new Request.Builder().url(BASE_URL + "/completions")
+                .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), JSONObject.toJSONString(req)))
+                .header("Authorization", auth.getApiKey()).header("Accept", "text/event-stream").build();
 
-        CloseableHttpAsyncClient asyncClient = HttpAsyncClientUtil.getHttpAsyncClient(auth.getProxy());
-        asyncClient.start();
-        StringEntity requestEntity = new StringEntity(JSONObject.toJSONString(req), "utf-8");
-        request.setEntity(requestEntity);
+        OkHttpClient httpClient = HttpAsyncClientUtil.createHttpClient(auth.getProxy());
 
-        HttpAsyncClientUtil.execute(asyncClient, request, param -> {
-            log.debug(">>>>completionsStream res:: {}", param);
+        HttpAsyncClientUtil.execute(httpClient, request, param -> {
             try
             {
                 CompletionRes resBO = parseConversation(param);
@@ -222,6 +220,19 @@ public class ChatGptApiPost implements PostApiService
                 log.error(">>>>completionsStream.parseConversation.exec.exception, e:", e);
                 throw new RuntimeException(e);
             }
+
+        }, param -> {
+            String msg = "Call Api 'https://api.openai.com/v1/completions' error";
+            try
+            {
+                ErrorRes errorRes = JSON.parseObject(param, ErrorRes.class);
+                msg = errorRes.getError().getMessage();
+            }
+            catch (Exception e)
+            {
+                log.error("completionsStream.parse error response failed, body:{}", param);
+            }
+            throw new RuntimeException(msg);
 
         });
     }
@@ -269,23 +280,15 @@ public class ChatGptApiPost implements PostApiService
     {
 
         req.setStream(true);
-        HttpPost request = new HttpPost(BASE_URL + "/chat/completions");
-        request.addHeader("Accept", "text/event-stream");
-        request.addHeader("Authorization", auth.getApiKey());
-        request.addHeader("Content-Type", "application/json;charset=utf-8");
+        Request request = new Request.Builder().url(BASE_URL + "/chat/completions")
+                .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), JSONObject.toJSONString(req)))
+                .header("Authorization", auth.getApiKey()).header("Accept", "text/event-stream").build();
 
-        CloseableHttpAsyncClient asyncClient = HttpAsyncClientUtil.getHttpAsyncClient(auth.getProxy());
-        asyncClient.start();
-        StringEntity requestEntity = new StringEntity(JSONObject.toJSONString(req), "utf-8");
-        request.setEntity(requestEntity);
-        requestEntity.setContentEncoding("UTF-8");
-        requestEntity.setContentType("application/json;charset=utf-8");
+        OkHttpClient asyncClient = HttpAsyncClientUtil.createHttpClient(auth.getProxy());
         HttpAsyncClientUtil.execute(asyncClient, request, param -> {
-            log.debug(">>>>completionsChatStream res:: {}", param);
             try
             {
                 CompletionRes resBO = parseConversation(param);
-                log.debug(">>>>>>>completionsChatStreamd {}", JSON.toJSONString(resBO));
                 callback.call(resBO);
             }
             catch (Exception e)
@@ -293,6 +296,19 @@ public class ChatGptApiPost implements PostApiService
                 log.error(">>>>completionsChatStream.parseConversation.exec.exception, e:", e);
                 throw new RuntimeException(e);
             }
+
+        }, param -> {
+            String msg = "Call Api 'https://api.openai.com/v1/chat/completions' error";
+            try
+            {
+                ErrorRes errorRes = JSON.parseObject(param, ErrorRes.class);
+                msg = errorRes.getError().getMessage();
+            }
+            catch (Exception e)
+            {
+                log.error("completionsChatStream.parse error response failed, body:{}", param);
+            }
+            throw new RuntimeException(msg);
 
         });
     }
@@ -1066,14 +1082,9 @@ public class ChatGptApiPost implements PostApiService
     private static CompletionRes parseConversation(String res) throws ApiException
     {
         CompletionRes completionRes = null;
-        if (!StrUtil.trimToEmpty(res).startsWith("data:"))
-        {
-            ErrorRes errorRes = JSON.parseObject(res, ErrorRes.class);
-            throw new ApiException(OTHER_ERROR, errorRes.getError().getMessage());
-
-        }
         List<String> resArr = StrUtil.splitTrim(res, "\n");
         StringBuilder sb = new StringBuilder();
+        int type = 0;
         if (CollUtil.isNotEmpty(resArr))
         {
             for (String data : resArr)
@@ -1082,10 +1093,7 @@ public class ChatGptApiPost implements PostApiService
                 {
                     break;
                 }
-                if (data.startsWith("data:"))
-                {
-                    data = data.substring(5);
-                }
+
                 try
                 {
                     if (StrUtil.isBlank(data) || !com.alibaba.fastjson.JSONObject.isValidObject(data))
@@ -1104,7 +1112,21 @@ public class ChatGptApiPost implements PostApiService
                     {
                         for (Choices choice : completionRes.getChoices())
                         {
-                            sb.append(choice.getText());
+                            if (null != choice.getDelta())
+                            {
+                                sb.append(Optional.ofNullable(choice.getDelta().getContent()).orElse(""));
+                                type = 1;
+                            }
+                            else if (null != choice.getMessage())
+                            {
+                                sb.append(Optional.ofNullable(choice.getMessage().getContent()).orElse(""));
+                                type = 2;
+                            }
+                            else
+                            {
+                                sb.append(choice.getText());
+                                type = 3;
+                            }
                         }
                     }
                 }
@@ -1122,7 +1144,23 @@ public class ChatGptApiPost implements PostApiService
 
                 Choices c = Choices.builder().finishReason(completionRes.getChoices().get(0).getFinishReason())
                         .index(completionRes.getChoices().get(0).getIndex())
-                        .logprobs(completionRes.getChoices().get(0).getLogprobs()).text(sb.toString()).build();
+                        .logprobs(completionRes.getChoices().get(0).getLogprobs()).build();
+                if (type == 1)
+                {
+                    MessageReq msg = completionRes.getChoices().get(0).getDelta();
+                    msg.setContent(sb.toString());
+                    c.setDelta(msg);
+                }
+                else if (type == 2)
+                {
+                    MessageReq msg = completionRes.getChoices().get(0).getMessage();
+                    msg.setContent(sb.toString());
+                    c.setMessage(msg);
+                }
+                else if (type == 3)
+                {
+                    c.setText(sb.toString());
+                }
                 completionRes.setChoices(Collections.singletonList(c));
             }
         }

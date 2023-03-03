@@ -2,6 +2,7 @@ package cn.jianwoo.openai.chatgptapi.bo;
 
 import java.io.File;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import cn.jianwoo.openai.chatgptapi.constants.Model;
 import com.alibaba.fastjson2.annotation.JSONField;
@@ -39,7 +40,7 @@ public class AudioReq implements Serializable
      * values like 0.2 will make it more focused and deterministic. If set to 0, the model will use log probability to
      * automatically increase the temperature until certain thresholds are hit.
      */
-    private String temperature;
+    private BigDecimal temperature;
     /**
      * The language of the input audio. Supplying the input language in ISO-639-1 format will improve accuracy and
      * latency.

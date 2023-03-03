@@ -2,7 +2,6 @@ package cn.jianwoo.openai.chatgptapi.bo;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
@@ -48,7 +47,7 @@ public class CompletionRes implements Serializable
     {
         if (CollUtil.isEmpty(choices))
         {
-            return null;
+            return "";
         }
         StringBuilder sb = new StringBuilder();
         for (Choices c : choices)

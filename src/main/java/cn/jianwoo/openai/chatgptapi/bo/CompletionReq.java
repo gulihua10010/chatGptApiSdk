@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author gulihua
@@ -25,7 +27,7 @@ public class CompletionReq implements Serializable
      */
     private String model;
 
-    /**The messages to generate chat completions for, in the chat format.*/
+    /** The messages to generate chat completions for, in the chat format. */
     private List<MessageReq> messages;
 
     /**
@@ -43,7 +45,7 @@ public class CompletionReq implements Serializable
      * What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while
      * lower values like 0.2 will make it more focused and deterministic.
      */
-    private Integer temperature;
+    private BigDecimal temperature;
 
     /**
      * An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of
@@ -51,7 +53,7 @@ public class CompletionReq implements Serializable
      * considered.
      */
     @JSONField(name = "top_p")
-    private Integer topP;
+    private BigDecimal topP;
 
     /** How many completions to generate for each prompt. */
     private Integer n;
@@ -84,13 +86,13 @@ public class CompletionReq implements Serializable
      * increasing the model's likelihood to talk about new topics.
      */
     @JSONField(name = "presence_penalty")
-    private String presencePenalty;
+    private BigDecimal presencePenalty;
     /**
      * Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so
      * far, decreasing the model's likelihood to repeat the same line verbatim.
      */
     @JSONField(name = "frequency_penalty")
-    private String frequencyPenalty;
+    private BigDecimal frequencyPenalty;
     /**
      * Generates best_of completions server-side and returns the "best" (the one with the highest log probability per
      * token). Results cannot be streamed.
@@ -99,7 +101,7 @@ public class CompletionReq implements Serializable
     private String bestOf;
     /** Modify the likelihood of specified tokens appearing in the completion. */
     @JSONField(name = "logit_bias")
-    private String logitBias;
+    private Map<String, Object> logitBias;
     /** A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. */
     private String user;
 
@@ -125,11 +127,11 @@ public class CompletionReq implements Serializable
     }
 
 
-    public Integer getTemperature()
+    public BigDecimal getTemperature()
     {
         if (temperature == null)
         {
-            return 0;
+            return BigDecimal.ZERO;
         }
         return this.temperature;
     }
