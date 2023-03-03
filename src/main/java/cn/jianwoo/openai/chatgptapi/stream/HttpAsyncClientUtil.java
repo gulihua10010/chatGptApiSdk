@@ -101,6 +101,7 @@ public class HttpAsyncClientUtil
                     log.error(" asyncClient.execute failed, e: ", t);
 
                 }
+                eventSource.cancel();
 
             }
         });
