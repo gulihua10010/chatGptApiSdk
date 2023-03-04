@@ -119,6 +119,10 @@ It already supports the latest GPT3.5 model and the whisper-1 model, which suppo
 cn.jianwoo.openai.chatgptapi.constants.Model
 ```
 
+## How to keep a conversation going/remember context
+Just pass in the previous dialog, see the test case below
+
+
 ## Example
 ![sample_code_1.png](sample_code_1.png)
 ```java
@@ -187,7 +191,24 @@ The Romance of The Three Kingdoms is a representative work of Chinese classical 
         System.out.println(JSONObject.toJSONString(res));
     }
 
-    private CountDownLatch lock = new CountDownLatch(1);
+    /**
+     *
+     * Continuous dialogue
+     *
+     * @author gulihua
+     */
+    @Test
+    public void completionsContext() throws ApiException
+    {
+        CompletionReq req = CompletionReq.builder().model(Model.TEXT_DAVINCI_003.getName())
+            .stop("[\" Human:\", \" Bot:\"]").prompt("Human: 你好").build();
+        CompletionRes res = service.completions(req);
+        System.out.println(JSONObject.toJSONString(res));
+        req.setPrompt(res.getAnswer() + "\n" + "Human: 你叫什么");
+        res = service.completions(req);
+        System.out.println(JSONObject.toJSONString(res));
+    }
+
 
     /**
      *
@@ -211,7 +232,7 @@ The Romance of The Three Kingdoms is a representative work of Chinese classical 
 
     /**
      *
-     * Create chat completion
+     * Continuous dialogue
      *
      * @author gulihua
      */
@@ -227,6 +248,28 @@ The Romance of The Three Kingdoms is a representative work of Chinese classical 
         }
 
 
+    /**
+     *
+     * 使用gpt-3.5-turbo模型聊天
+     *
+     * @author gulihua
+     */
+    @Test
+    public void completionsChatContext() throws ApiException
+    {
+        CompletionReq req = CompletionReq.builder().model(Model.GPT_35_TURBO.getName())
+            .messages(
+        Collections.singletonList(MessageReq.builder().role(Role.USER.getName()).content("请重复我的话").build()))
+            .build();
+        CompletionRes res = service.completionsChat(req);
+        System.out.println(JSONObject.toJSONString(res));
+        List<MessageReq> messages = new ArrayList<>();
+        messages.add(res.getChoices().get(0).getMessage());
+        messages.add(MessageReq.builder().role(Role.USER.getName()).content("我是中国人").build());
+        req.setMessages(messages);
+        res = service.completionsChat(req);
+        System.out.println(JSONObject.toJSONString(res));
+     }
     /**
      *
      * Create chat completion(text/event-stream)

@@ -3,7 +3,9 @@ package cn.jianwoo.openai;
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import cn.jianwoo.openai.chatgptapi.bo.AudioReq;
 import cn.jianwoo.openai.chatgptapi.bo.AudioRes;
@@ -49,7 +51,7 @@ public class DemoTest
 {
     static Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 7890));
 
-    static String apiKey = "sk-********************************zeYL";
+    static String apiKey = "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";
     static PostApiService service = new ChatGptApiPost(new OpenAiAuth(apiKey, proxy));
 
     /**
@@ -97,6 +99,25 @@ public class DemoTest
 
     /**
      *
+     * 连续对话
+     *
+     * @author gulihua
+     */
+    @Test
+    public void completionsContext() throws ApiException
+    {
+        CompletionReq req = CompletionReq.builder().model(Model.TEXT_DAVINCI_003.getName())
+                .stop("[\" Human:\", \" Bot:\"]").prompt("Human: 你好").build();
+        CompletionRes res = service.completions(req);
+        System.out.println(JSONObject.toJSONString(res));
+        req.setPrompt(res.getAnswer() + "\n" + "Human: 你叫什么");
+        res = service.completions(req);
+        System.out.println(JSONObject.toJSONString(res));
+    }
+
+
+    /**
+     *
      * 创建异步对话(流式)
      *
      * @author gulihua
@@ -108,11 +129,12 @@ public class DemoTest
             // 回调方法
             if (res != null)
             {
-                System.out.println("接收到的数据:  " +res.getAnswer());
+                System.out.println("接收到的数据:  " + res.getAnswer());
 
             }
         });
     }
+
 
     /**
      *
@@ -128,6 +150,29 @@ public class DemoTest
                         Collections.singletonList(MessageReq.builder().role(Role.USER.getName()).content("你好").build()))
                 .build();
         CompletionRes res = service.completionsChat(req);
+        System.out.println(JSONObject.toJSONString(res));
+    }
+
+    /**
+     *
+     * 使用gpt-3.5-turbo模型聊天
+     *
+     * @author gulihua
+     */
+    @Test
+    public void completionsChatContext() throws ApiException
+    {
+        CompletionReq req = CompletionReq.builder().model(Model.GPT_35_TURBO.getName())
+                .messages(
+                        Collections.singletonList(MessageReq.builder().role(Role.USER.getName()).content("请重复我的话").build()))
+                .build();
+        CompletionRes res = service.completionsChat(req);
+        System.out.println(JSONObject.toJSONString(res));
+        List<MessageReq> messages = new ArrayList<>();
+        messages.add(res.getChoices().get(0).getMessage());
+        messages.add(MessageReq.builder().role(Role.USER.getName()).content("我是中国人").build());
+        req.setMessages(messages);
+        res = service.completionsChat(req);
         System.out.println(JSONObject.toJSONString(res));
     }
 
@@ -148,7 +193,7 @@ public class DemoTest
             // 回调方法
             if (res != null)
             {
-                System.out.println("接收到的数据:  " +res.getChatContent());
+                System.out.println("接收到的数据:  " + res.getChatContent());
             }
         });
     }
@@ -497,6 +542,7 @@ public class DemoTest
     {
         System.out.println(FastCompletion.chat(apiKey, "介绍一下《三国演义》这本书"));
     }
+
 
     /**
      *

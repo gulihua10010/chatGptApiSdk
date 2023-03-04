@@ -116,6 +116,9 @@
 ```java
 cn.jianwoo.openai.chatgptapi.constants.Model
 ```
+## 如何连续对话/记住上下文
+把之前的对话传进去就行了，可以参考下面的测试用例
+
 
 ## 示例
 ![sample_code_1.png](sample_code_1.png)
@@ -185,7 +188,23 @@ public void fastCompletionAsk() throws ApiException {
         CompletionRes res = service.completions(req);
         System.out.println(JSONObject.toJSONString(res));
     }
-
+    /**
+     *
+     * 连续对话
+     *
+     * @author gulihua
+     */
+    @Test
+    public void completionsContext() throws ApiException
+    {
+        CompletionReq req = CompletionReq.builder().model(Model.TEXT_DAVINCI_003.getName())
+           .stop("[\" Human:\", \" Bot:\"]").prompt("Human: 你好").build();
+        CompletionRes res = service.completions(req);
+        System.out.println(JSONObject.toJSONString(res));
+        req.setPrompt(res.getAnswer() + "\n" + "Human: 你叫什么");
+        res = service.completions(req);
+        System.out.println(JSONObject.toJSONString(res));
+    }
 
     /**
      *
@@ -223,6 +242,29 @@ public void fastCompletionAsk() throws ApiException {
         System.out.println(JSONObject.toJSONString(res));
     }
 
+
+    /**
+     *
+     * 使用gpt-3.5-turbo模型聊天
+     *
+     * @author gulihua
+     */
+    @Test
+    public void completionsChatContext() throws ApiException
+    {
+        CompletionReq req = CompletionReq.builder().model(Model.GPT_35_TURBO.getName())
+            .messages(
+        Collections.singletonList(MessageReq.builder().role(Role.USER.getName()).content("请重复我的话").build()))
+            .build();
+        CompletionRes res = service.completionsChat(req);
+        System.out.println(JSONObject.toJSONString(res));
+        List<MessageReq> messages = new ArrayList<>();
+        messages.add(res.getChoices().get(0).getMessage());
+        messages.add(MessageReq.builder().role(Role.USER.getName()).content("我是中国人").build());
+        req.setMessages(messages);
+        res = service.completionsChat(req);
+        System.out.println(JSONObject.toJSONString(res));
+    }
 
     /**
      *
