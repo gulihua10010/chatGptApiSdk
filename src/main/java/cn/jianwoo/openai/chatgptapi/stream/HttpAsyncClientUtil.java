@@ -78,6 +78,15 @@ public class HttpAsyncClientUtil
             @Override
             public void onFailure(EventSource eventSource, Throwable t, Response response)
             {
+                if (null == response)
+                {
+                    if (null != failCallback && null != t)
+                    {
+                        failCallback.call(t.getMessage());
+                    }
+                    log.error(" asyncClient.execute failed, e: ", t);
+                    return;
+                }
                 ResponseBody body = response.body();
                 if (body != null)
                 {
@@ -98,6 +107,10 @@ public class HttpAsyncClientUtil
                 }
                 else
                 {
+                    if (null != failCallback && null != t)
+                    {
+                        failCallback.call(t.getMessage());
+                    }
                     log.error(" asyncClient.execute failed, e: ", t);
 
                 }
