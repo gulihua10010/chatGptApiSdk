@@ -32,6 +32,8 @@ public class CompletionRes implements Serializable
 
     private Usage usage;
 
+    private Boolean done;
+
     public String getAnswer()
     {
         if (CollUtil.isEmpty(choices))

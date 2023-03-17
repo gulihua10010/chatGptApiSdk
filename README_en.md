@@ -14,7 +14,7 @@ It already supports the latest GPT3.5 model and the whisper-1 model, which suppo
 <dependency>
     <groupId>cn.jianwoo.openai</groupId>
     <artifactId>ChatGpt-API-SDK</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
 </dependency>
 
 <!--If the dependency cannot be obtained, you can specify the repository address-->
@@ -122,6 +122,12 @@ cn.jianwoo.openai.chatgptapi.constants.Model
 ## How to keep a conversation going/remember context
 Just pass in the previous dialog, see the test case below
 
+## Other ChatGPt-related items
+- Wechat mini-program based on uni-app:https://github.com/gulihua10010/wxmini-chatgpt
+- Wechat mini-program server API program:https://github.com/gulihua10010/chatGptApi
+- OpenAi authorized SDK:https://github.com/gulihua10010/openAiAuth
+- ChatGpt API SDK:https://github.com/gulihua10010/chatGptApiSdk
+- ChatGpt Command line client:https://github.com/gulihua10010/ChatGpt
 
 ## Example
 ![sample_code_1.png](sample_code_1.png)

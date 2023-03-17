@@ -51,7 +51,7 @@ public class DemoTest
 {
     static Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 7890));
 
-    static String apiKey = "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";
+    static String apiKey = "sk-Ly5********************************************1ziV7";
     static PostApiService service = new ChatGptApiPost(new OpenAiAuth(apiKey));
 
     /**
@@ -129,7 +129,7 @@ public class DemoTest
             // 回调方法
             if (res != null)
             {
-                System.out.println("接收到的数据:  " + res.getAnswer());
+                System.out.println("Done:" + res.getDone() + ", 接收到的数据:  " + res.getAnswer());
 
             }
         });
@@ -153,6 +153,7 @@ public class DemoTest
         System.out.println(JSONObject.toJSONString(res));
     }
 
+
     /**
      *
      * 使用gpt-3.5-turbo模型聊天
@@ -164,13 +165,13 @@ public class DemoTest
     {
         long start = System.currentTimeMillis();
         CompletionReq req = CompletionReq.builder().model(Model.GPT_35_TURBO.getName())
-                .messages(
-                        Collections.singletonList(MessageReq.builder().role(Role.USER.getName()).content("请重复我的话").build()))
+                .messages(Collections
+                        .singletonList(MessageReq.builder().role(Role.USER.getName()).content("请重复我的话").build()))
                 .build();
         CompletionRes res = service.completionsChat(req);
         System.out.println(JSONObject.toJSONString(res));
         long end = System.currentTimeMillis();
-        System.out.println("cost1="+(end-start));
+        System.out.println("cost1=" + (end - start));
         start = System.currentTimeMillis();
         List<MessageReq> messages = new ArrayList<>();
         messages.add(res.getChoices().get(0).getMessage());
@@ -179,7 +180,7 @@ public class DemoTest
         res = service.completionsChat(req);
         System.out.println(JSONObject.toJSONString(res));
         end = System.currentTimeMillis();
-        System.out.println("cost2="+(end-start));
+        System.out.println("cost2=" + (end - start));
 
     }
 
@@ -200,7 +201,7 @@ public class DemoTest
             // 回调方法
             if (res != null)
             {
-                System.out.println("接收到的数据:  " + res.getChatContent());
+                System.out.println("Done:" + res.getDone() + ", 接收到的数据:  " + res.getChatContent());
             }
         });
     }
@@ -208,8 +209,8 @@ public class DemoTest
 
     public static void main(String[] args) throws Exception
     {
-//        completionsStream();
-        completionsChatStream();
+        completionsStream();
+//        completionsChatStream();
     }
 
 

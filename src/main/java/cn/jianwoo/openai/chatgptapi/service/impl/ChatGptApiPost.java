@@ -1081,7 +1081,7 @@ public class ChatGptApiPost implements PostApiService
 
     private static CompletionRes parseConversation(String res) throws ApiException
     {
-        CompletionRes completionRes = null;
+        CompletionRes completionRes = CompletionRes.builder().build();
         List<String> resArr = StrUtil.splitTrim(res, "\n");
         StringBuilder sb = new StringBuilder();
         int type = 0;
@@ -1091,7 +1091,8 @@ public class ChatGptApiPost implements PostApiService
             {
                 if (data.contains("[DONE]"))
                 {
-                    break;
+                    completionRes.setDone(true);
+                    return completionRes;
                 }
 
                 try
@@ -1162,6 +1163,7 @@ public class ChatGptApiPost implements PostApiService
                     c.setText(sb.toString());
                 }
                 completionRes.setChoices(Collections.singletonList(c));
+                completionRes.setDone(false);
             }
         }
         return completionRes;
