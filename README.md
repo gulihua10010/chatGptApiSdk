@@ -119,6 +119,12 @@ cn.jianwoo.openai.chatgptapi.constants.Model
 ## 如何连续对话/记住上下文
 把之前的对话传进去就行了，可以参考下面的测试用例
 
+## 其他ChatGpt相关项目
+- 基于uni-app构建的微信小程序:https://github.com/gulihua10010/wxmini-chatgpt
+- 微信小程序服务端API程序:https://github.com/gulihua10010/chatGptApi
+- openAi授权SDK:https://github.com/gulihua10010/openAiAuth
+- chatGpt API SDK:https://github.com/gulihua10010/chatGptApiSdk
+- chatGpt命令行客户端:https://github.com/gulihua10010/ChatGpt
 
 ## 示例
 ![sample_code_1.png](sample_code_1.png)

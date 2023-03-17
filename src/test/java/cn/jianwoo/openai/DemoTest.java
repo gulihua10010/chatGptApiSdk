@@ -51,8 +51,8 @@ public class DemoTest
 {
     static Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 7890));
 
-    static String apiKey = "sk-Xg**************************************oa0";
-    static PostApiService service = new ChatGptApiPost(new OpenAiAuth(apiKey, proxy));
+    static String apiKey = "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";
+    static PostApiService service = new ChatGptApiPost(new OpenAiAuth(apiKey));
 
     /**
      *
@@ -162,18 +162,25 @@ public class DemoTest
     @Test
     public void completionsChatContext() throws ApiException
     {
+        long start = System.currentTimeMillis();
         CompletionReq req = CompletionReq.builder().model(Model.GPT_35_TURBO.getName())
                 .messages(
                         Collections.singletonList(MessageReq.builder().role(Role.USER.getName()).content("请重复我的话").build()))
                 .build();
         CompletionRes res = service.completionsChat(req);
         System.out.println(JSONObject.toJSONString(res));
+        long end = System.currentTimeMillis();
+        System.out.println("cost1="+(end-start));
+        start = System.currentTimeMillis();
         List<MessageReq> messages = new ArrayList<>();
         messages.add(res.getChoices().get(0).getMessage());
         messages.add(MessageReq.builder().role(Role.USER.getName()).content("我是中国人").build());
         req.setMessages(messages);
         res = service.completionsChat(req);
         System.out.println(JSONObject.toJSONString(res));
+        end = System.currentTimeMillis();
+        System.out.println("cost2="+(end-start));
+
     }
 
 
