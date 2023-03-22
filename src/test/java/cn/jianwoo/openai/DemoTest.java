@@ -9,6 +9,7 @@ import java.util.List;
 
 import cn.jianwoo.openai.chatgptapi.bo.AudioReq;
 import cn.jianwoo.openai.chatgptapi.bo.AudioRes;
+import cn.jianwoo.openai.chatgptapi.bo.CreditGrantsRes;
 import cn.jianwoo.openai.chatgptapi.bo.MessageReq;
 import cn.jianwoo.openai.chatgptapi.constants.Model;
 import cn.jianwoo.openai.chatgptapi.constants.Role;
@@ -51,7 +52,7 @@ public class DemoTest
 {
     static Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 7890));
 
-    static String apiKey = "sk-Ly5********************************************1ziV7";
+    static String apiKey = "sk-MS**************************************************U1JI";
     static PostApiService service = new ChatGptApiPost(new OpenAiAuth(apiKey));
 
     /**
@@ -524,6 +525,23 @@ public class DemoTest
         EnginesDataRes res = service.enginesRetrieve("text-davinci-003");
         System.out.println(JSONObject.toJSONString(res));
     }
+
+
+
+    /**
+     *
+     * 查询账户余额
+     *
+     * @author gulihua
+     */
+
+    @Test
+    public void queryBillingCreditGrants() throws ApiException
+    {
+        CreditGrantsRes res = service.queryBillingCreditGrants();
+        System.out.println(JSONObject.toJSONString(res));
+    }
+
 
 
     /**

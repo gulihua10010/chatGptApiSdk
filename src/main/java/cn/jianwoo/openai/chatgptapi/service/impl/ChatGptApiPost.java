@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import cn.jianwoo.openai.chatgptapi.bo.CreditGrantsRes;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 
@@ -66,7 +67,6 @@ public class ChatGptApiPost implements PostApiService
 
     private OpenAiAuth auth;
 
-    public static final String BASE_URL = "https://api.openai.com/v1";
 
     public static final String AUTHORIZATION_ERROR = "400001";
     public static final String JSON_ERROR = "500001";
@@ -93,7 +93,7 @@ public class ChatGptApiPost implements PostApiService
     {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.get(BASE_URL + "/models").headerMap(headers, true).setProxy(auth.getProxy())
+        HttpResponse response = HttpRequest.get(auth.getBaseUrl() + "/models").headerMap(headers, true).setProxy(auth.getProxy())
                 .execute();
 
         if (response.getStatus() == 401)
@@ -128,7 +128,7 @@ public class ChatGptApiPost implements PostApiService
     {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.get(BASE_URL + "/models/" + modelName).headerMap(headers, true)
+        HttpResponse response = HttpRequest.get(auth.getBaseUrl() + "/models/" + modelName).headerMap(headers, true)
                 .setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -169,7 +169,7 @@ public class ChatGptApiPost implements PostApiService
         req.setStream(false);
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.post(BASE_URL + "/completions").headerMap(headers, true)
+        HttpResponse response = HttpRequest.post(auth.getBaseUrl() + "/completions").headerMap(headers, true)
                 .body(JSONObject.toJSONString(req)).setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -203,7 +203,7 @@ public class ChatGptApiPost implements PostApiService
     public void completionsStream(CompletionReq req, Callback<CompletionRes> callback) throws ApiException
     {
         req.setStream(true);
-        Request request = new Request.Builder().url(BASE_URL + "/completions")
+        Request request = new Request.Builder().url(auth.getBaseUrl() + "/completions")
                 .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), JSONObject.toJSONString(req)))
                 .header("Authorization", auth.getApiKey()).header("Accept", "text/event-stream").build();
 
@@ -245,7 +245,7 @@ public class ChatGptApiPost implements PostApiService
         req.setStream(false);
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.post(BASE_URL + "/chat/completions").headerMap(headers, true)
+        HttpResponse response = HttpRequest.post(auth.getBaseUrl() + "/chat/completions").headerMap(headers, true)
                 .body(JSONObject.toJSONString(req)).setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -280,7 +280,7 @@ public class ChatGptApiPost implements PostApiService
     {
 
         req.setStream(true);
-        Request request = new Request.Builder().url(BASE_URL + "/chat/completions")
+        Request request = new Request.Builder().url(auth.getBaseUrl() + "/chat/completions")
                 .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), JSONObject.toJSONString(req)))
                 .header("Authorization", auth.getApiKey()).header("Accept", "text/event-stream").build();
 
@@ -319,7 +319,7 @@ public class ChatGptApiPost implements PostApiService
     {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.post(BASE_URL + "/edits").headerMap(headers, true)
+        HttpResponse response = HttpRequest.post(auth.getBaseUrl() + "/edits").headerMap(headers, true)
                 .body(JSONObject.toJSONString(req)).setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -354,7 +354,7 @@ public class ChatGptApiPost implements PostApiService
     {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.post(BASE_URL + "/images/generations").headerMap(headers, true)
+        HttpResponse response = HttpRequest.post(auth.getBaseUrl() + "/images/generations").headerMap(headers, true)
                 .body(JSONObject.toJSONString(req)).setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -398,7 +398,7 @@ public class ChatGptApiPost implements PostApiService
         paramMap.put("response_format", req.getResponseFormat());
         paramMap.put("user", req.getUser());
 
-        HttpResponse response = HttpRequest.post(BASE_URL + "/images/edits").headerMap(headers, true).form(paramMap)
+        HttpResponse response = HttpRequest.post(auth.getBaseUrl() + "/images/edits").headerMap(headers, true).form(paramMap)
                 .setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -440,7 +440,7 @@ public class ChatGptApiPost implements PostApiService
         paramMap.put("response_format", req.getResponseFormat());
         paramMap.put("user", req.getUser());
 
-        HttpResponse response = HttpRequest.post(BASE_URL + "/images/variations").headerMap(headers, true)
+        HttpResponse response = HttpRequest.post(auth.getBaseUrl() + "/images/variations").headerMap(headers, true)
                 .form(paramMap).setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -476,7 +476,7 @@ public class ChatGptApiPost implements PostApiService
 
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.post(BASE_URL + "/embeddings").headerMap(headers, true)
+        HttpResponse response = HttpRequest.post(auth.getBaseUrl() + "/embeddings").headerMap(headers, true)
                 .body(JSONObject.toJSONString(req)).setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -515,7 +515,7 @@ public class ChatGptApiPost implements PostApiService
         paramMap.put("file", req.getFile());
         paramMap.put("model", req.getModel());
 
-        HttpResponse response = HttpRequest.post(BASE_URL + "/audio/transcriptions").headerMap(headers, true)
+        HttpResponse response = HttpRequest.post(auth.getBaseUrl() + "/audio/transcriptions").headerMap(headers, true)
                 .form(paramMap).setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -554,7 +554,7 @@ public class ChatGptApiPost implements PostApiService
         paramMap.put("file", req.getFile());
         paramMap.put("model", req.getModel());
 
-        HttpResponse response = HttpRequest.post(BASE_URL + "/audio/translations").headerMap(headers, true)
+        HttpResponse response = HttpRequest.post(auth.getBaseUrl() + "/audio/translations").headerMap(headers, true)
                 .form(paramMap).setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -589,7 +589,7 @@ public class ChatGptApiPost implements PostApiService
     {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.get(BASE_URL + "/files").headerMap(headers, true).setProxy(auth.getProxy())
+        HttpResponse response = HttpRequest.get(auth.getBaseUrl() + "/files").headerMap(headers, true).setProxy(auth.getProxy())
                 .execute();
 
         if (response.getStatus() == 401)
@@ -628,7 +628,7 @@ public class ChatGptApiPost implements PostApiService
         paramMap.put("purpose", req.getPurpose());
         paramMap.put("file", req.getFile());
 
-        HttpResponse response = HttpRequest.post(BASE_URL + "/files").headerMap(headers, true).form(paramMap)
+        HttpResponse response = HttpRequest.post(auth.getBaseUrl() + "/files").headerMap(headers, true).form(paramMap)
                 .setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -663,7 +663,7 @@ public class ChatGptApiPost implements PostApiService
     {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.delete(BASE_URL + "/files/" + fileId).headerMap(headers, true)
+        HttpResponse response = HttpRequest.delete(auth.getBaseUrl() + "/files/" + fileId).headerMap(headers, true)
                 .setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -698,7 +698,7 @@ public class ChatGptApiPost implements PostApiService
     {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.get(BASE_URL + "/files/" + fileId).headerMap(headers, true)
+        HttpResponse response = HttpRequest.get(auth.getBaseUrl() + "/files/" + fileId).headerMap(headers, true)
                 .setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -733,7 +733,7 @@ public class ChatGptApiPost implements PostApiService
     {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.get(BASE_URL + "/files/" + fileId + "/content").headerMap(headers, true)
+        HttpResponse response = HttpRequest.get(auth.getBaseUrl() + "/files/" + fileId + "/content").headerMap(headers, true)
                 .setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -769,7 +769,7 @@ public class ChatGptApiPost implements PostApiService
 
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.post(BASE_URL + "/fine-tunes").headerMap(headers, true)
+        HttpResponse response = HttpRequest.post(auth.getBaseUrl() + "/fine-tunes").headerMap(headers, true)
                 .body(JSONObject.toJSONString(req)).setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -804,7 +804,7 @@ public class ChatGptApiPost implements PostApiService
     {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.get(BASE_URL + "/fine-tunes").headerMap(headers, true)
+        HttpResponse response = HttpRequest.get(auth.getBaseUrl() + "/fine-tunes").headerMap(headers, true)
                 .setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -839,7 +839,7 @@ public class ChatGptApiPost implements PostApiService
     {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.get(BASE_URL + "/fine-tunes/" + fineTuneId).headerMap(headers, true)
+        HttpResponse response = HttpRequest.get(auth.getBaseUrl() + "/fine-tunes/" + fineTuneId).headerMap(headers, true)
                 .setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -874,7 +874,7 @@ public class ChatGptApiPost implements PostApiService
     {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.post(BASE_URL + "/fine-tunes/" + fineTuneId + "/cancel")
+        HttpResponse response = HttpRequest.post(auth.getBaseUrl() + "/fine-tunes/" + fineTuneId + "/cancel")
                 .headerMap(headers, true).setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -909,7 +909,7 @@ public class ChatGptApiPost implements PostApiService
     {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.get(BASE_URL + "/fine-tunes/" + fineTuneId + "/events")
+        HttpResponse response = HttpRequest.get(auth.getBaseUrl() + "/fine-tunes/" + fineTuneId + "/events")
                 .headerMap(headers, true).setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -944,7 +944,7 @@ public class ChatGptApiPost implements PostApiService
     {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.delete(BASE_URL + "/models/" + model).headerMap(headers, true)
+        HttpResponse response = HttpRequest.delete(auth.getBaseUrl() + "/models/" + model).headerMap(headers, true)
                 .setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -979,7 +979,7 @@ public class ChatGptApiPost implements PostApiService
     {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.post(BASE_URL + "/moderations").headerMap(headers, true)
+        HttpResponse response = HttpRequest.post(auth.getBaseUrl() + "/moderations").headerMap(headers, true)
                 .body(JSONObject.toJSONString(req)).setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -1014,7 +1014,7 @@ public class ChatGptApiPost implements PostApiService
     {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.get(BASE_URL + "/engines").headerMap(headers, true)
+        HttpResponse response = HttpRequest.get(auth.getBaseUrl() + "/engines").headerMap(headers, true)
                 .setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -1049,7 +1049,7 @@ public class ChatGptApiPost implements PostApiService
     {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.get(BASE_URL + "/engines/" + engineId).headerMap(headers, true)
+        HttpResponse response = HttpRequest.get(auth.getBaseUrl() + "/engines/" + engineId).headerMap(headers, true)
                 .setProxy(auth.getProxy()).execute();
 
         if (response.getStatus() == 401)
@@ -1073,6 +1073,39 @@ public class ChatGptApiPost implements PostApiService
         {
             log.error(">>>>enginesRetrieve.response:{}", response.body());
             log.error(">>>>enginesRetrieve.response.parse.exception, e:", e);
+            throw new ApiException(JSON_ERROR, JSON_ERROR_MSG);
+
+        }
+    }
+
+    @Override
+    public CreditGrantsRes queryBillingCreditGrants() throws ApiException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", auth.getApiKey());
+        HttpResponse response = HttpRequest.get(auth.getBaseUrl() + "/dashboard/billing/credit_grants").headerMap(headers, true)
+                .setProxy(auth.getProxy()).execute();
+
+        if (response.getStatus() == 401)
+        {
+            log.error(">>>>queryBillingCreditGrants.response:{}", response.body());
+            throw new ApiException(AUTHORIZATION_ERROR, AUTHORIZATION_ERROR_MSG);
+        }
+        if (response.getStatus() != 200)
+        {
+            log.error(">>>>queryBillingCreditGrants.response:{}", response.body());
+
+            ErrorRes error = JSON.parseObject(response.body(), ErrorRes.class);
+            throw new ApiException(OTHER_ERROR, error.getError().getMessage());
+
+        }
+        try
+        {
+            return JSON.parseObject(response.body(), CreditGrantsRes.class);
+        }
+        catch (Exception e)
+        {
+            log.error(">>>>queryBillingCreditGrants.response:{}", response.body());
+            log.error(">>>>queryBillingCreditGrants.response.parse.exception, e:", e);
             throw new ApiException(JSON_ERROR, JSON_ERROR_MSG);
 
         }

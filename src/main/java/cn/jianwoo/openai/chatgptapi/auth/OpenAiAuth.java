@@ -1,5 +1,6 @@
 package cn.jianwoo.openai.chatgptapi.auth;
 
+import cn.hutool.core.util.StrUtil;
 import cn.jianwoo.openai.chatgptapi.service.PostApiService;
 import cn.jianwoo.openai.chatgptapi.service.impl.ChatGptApiPost;
 
@@ -16,10 +17,14 @@ import java.net.Proxy;
  */
 public class OpenAiAuth
 {
+    public static final String BASE_URL = "https://api.openai.com/v1";
+
     /** apiKey,获取地址:https://platform.openai.com/account/api-keys */
     private String apiKey;
     /** 代理 */
     private Proxy proxy;
+
+    private String baseUrl;
 
     private OpenAiAuth()
     {
@@ -36,6 +41,14 @@ public class OpenAiAuth
     {
         this.apiKey = apiKey;
         this.proxy = proxy;
+    }
+
+
+    public OpenAiAuth(String apiKey, Proxy proxy, String baseUrl)
+    {
+        this.apiKey = apiKey;
+        this.proxy = proxy;
+        this.baseUrl = baseUrl;
     }
 
 
@@ -56,6 +69,16 @@ public class OpenAiAuth
     {
         this.proxy = proxy;
         return this;
+    }
+
+
+    public String getBaseUrl()
+    {
+        if (StrUtil.isBlank(baseUrl))
+        {
+            return BASE_URL;
+        }
+        return this.baseUrl;
     }
 
 

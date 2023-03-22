@@ -5,6 +5,15 @@ It already supports the latest GPT3.5 model and the whisper-1 model, which suppo
 
 [中文文档](README.md).
 
+## Version log
+- 1.0.0 Supports all OpenAI official interfaces, supports proxies, and supports streaming;
+- 1.0.2 Supports the latest GPT-3.5-Turbo models and Whis-1 models;
+- 1.0.3 Fixed some known problems;
+- 1.0.4 Fixed some known problems [issues #5](https://github.com/gulihua10010/chatGptApiSdk/issues/5);
+- 1.0.5 Stream Call added whether transfer complete field;
+- 1.0.6 Support gpt-4, query billing credit grants, and customize Api endpoints;
+
+
 ## Usage
 
 ### Import dependency
@@ -14,7 +23,7 @@ It already supports the latest GPT3.5 model and the whisper-1 model, which suppo
 <dependency>
     <groupId>cn.jianwoo.openai</groupId>
     <artifactId>ChatGpt-API-SDK</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
 </dependency>
 
 <!--If the dependency cannot be obtained, you can specify the repository address-->
@@ -611,6 +620,20 @@ The Romance of The Three Kingdoms is a representative work of Chinese classical 
     public void enginesRetrieve() throws ApiException
     {
         EnginesDataRes res = service.enginesRetrieve("text-davinci-003");
+        System.out.println(JSONObject.toJSONString(res));
+    }
+
+    /**
+     *
+     * Billing credit grants
+     *
+     * @author gulihua
+     */
+    
+    @Test
+    public void queryBillingCreditGrants() throws ApiException
+    {
+        CreditGrantsRes res = service.queryBillingCreditGrants();
         System.out.println(JSONObject.toJSONString(res));
     }
 

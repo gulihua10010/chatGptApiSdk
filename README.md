@@ -6,6 +6,14 @@
 
 [English Doc](README_en.md).
 
+## 版本日志
+- 1.0.0 支持所有的OpenAI官方接口，支持代理，支持流式传输;
+- 1.0.2 支持最新的GPT-3.5-Turbo模型和Whisper-1模型;
+- 1.0.3 修复一些已知问题;
+- 1.0.4 修复一些已知问题 [issues #5](https://github.com/gulihua10010/chatGptApiSdk/issues/5);
+- 1.0.5 流式调用新增是否传输完成字段;
+- 1.0.6 支持gpt-4，查询账单明细，支持自定义Api端点;
+
 ## 用法
 
 ### 导入依赖
@@ -15,7 +23,7 @@
 <dependency>
     <groupId>cn.jianwoo.openai</groupId>
     <artifactId>ChatGpt-API-SDK</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
 </dependency>
 
 <!--如果获取不到依赖，可以指定下仓库地址-->
@@ -612,6 +620,20 @@ public void fastCompletionAsk() throws ApiException {
         System.out.println(JSONObject.toJSONString(res));
     }
 
+
+    /**
+     *
+     * 查询账户余额
+     *
+     * @author gulihua
+     */
+    
+    @Test
+    public void queryBillingCreditGrants() throws ApiException
+    {
+        CreditGrantsRes res = service.queryBillingCreditGrants();
+        System.out.println(JSONObject.toJSONString(res));
+    }
 
     /**
      *

@@ -4,6 +4,7 @@ import cn.jianwoo.openai.chatgptapi.bo.AudioReq;
 import cn.jianwoo.openai.chatgptapi.bo.AudioRes;
 import cn.jianwoo.openai.chatgptapi.bo.CompletionReq;
 import cn.jianwoo.openai.chatgptapi.bo.CompletionRes;
+import cn.jianwoo.openai.chatgptapi.bo.CreditGrantsRes;
 import cn.jianwoo.openai.chatgptapi.bo.EmbeddingsReq;
 import cn.jianwoo.openai.chatgptapi.bo.EmbeddingsRes;
 import cn.jianwoo.openai.chatgptapi.bo.EnginesDataRes;
@@ -101,7 +102,6 @@ public interface PostApiService
      *             --900001 其他错误 <br>
      **/
     void completionsStream(CompletionReq req, Callback<CompletionRes> callback) throws ApiException;
-
 
 
     /**
@@ -233,6 +233,7 @@ public interface PostApiService
      **/
     AudioRes audioTranscribes(AudioReq req) throws ApiException;
 
+
     /**
      * Create translation<br>
      * Translates audio into into English.<br>
@@ -247,6 +248,7 @@ public interface PostApiService
      *             --900001 其他错误 <br>
      **/
     AudioRes audioTranslates(AudioReq req) throws ApiException;
+
 
     /**
      * List files<br>
@@ -470,4 +472,18 @@ public interface PostApiService
      *             --900001 其他错误 <br>
      **/
     EnginesDataRes enginesRetrieve(String engineId) throws ApiException;
+
+
+    /**
+     * Billing credit grants<br>
+     *
+     * @author gulihua
+     * @return FineTunesRes
+     * @throws ApiException <br>
+     *             --400001 未授权 <br>
+     *             --500001 响应JSON错误 <br>
+     *             --800001 业务错误 <br>
+     *             --900001 其他错误 <br>
+     **/
+    CreditGrantsRes queryBillingCreditGrants() throws ApiException;
 }
