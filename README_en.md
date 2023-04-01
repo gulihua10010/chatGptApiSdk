@@ -12,6 +12,7 @@ It already supports the latest GPT3.5 model and the whisper-1 model, which suppo
 - 1.0.4 Fixed some known problems [issues #5](https://github.com/gulihua10010/chatGptApiSdk/issues/5);
 - 1.0.5 Stream Call added whether transfer complete field;
 - 1.0.6 Support gpt-4, query billing credit grants, and customize Api endpoints;
+- 1.0.7 Support to set the timeout, and whether timeout after the automatic retry (only support completions/completionsStream/completionsChat/completionsChatStream these four API), current response returned to increase the success of a field, If it is a failure, a failure message and exception details are returned, instead of throwing the runtime exception directly;
 
 
 ## Usage
@@ -23,7 +24,7 @@ It already supports the latest GPT3.5 model and the whisper-1 model, which suppo
 <dependency>
     <groupId>cn.jianwoo.openai</groupId>
     <artifactId>ChatGpt-API-SDK</artifactId>
-    <version>1.0.6</version>
+    <version>1.0.7</version>
 </dependency>
 
 <!--If the dependency cannot be obtained, you can specify the repository address-->

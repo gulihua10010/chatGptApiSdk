@@ -31,8 +31,12 @@ public class CompletionRes implements Serializable
     private List<Choices> choices;
 
     private Usage usage;
-
+    /** 是否已经完成 */
     private Boolean done;
+    /** 是否成功 */
+    private Boolean isSuccess;
+    /** 失败详情 */
+    private HttpFailedBO failed;
 
     public String getAnswer()
     {

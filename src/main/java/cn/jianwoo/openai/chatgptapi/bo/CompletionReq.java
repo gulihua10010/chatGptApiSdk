@@ -117,6 +117,8 @@ public class CompletionReq implements Serializable
      */
     private String instruction;
 
+    private transient Boolean isReTry;
+
     public Integer getMaxTokens()
     {
         if (maxTokens == null)
@@ -134,5 +136,15 @@ public class CompletionReq implements Serializable
             return BigDecimal.ZERO;
         }
         return this.temperature;
+    }
+
+
+    public Boolean getIsReTry()
+    {
+        if (null == isReTry)
+        {
+            this.isReTry = false;
+        }
+        return this.isReTry;
     }
 }

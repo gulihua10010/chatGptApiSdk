@@ -101,7 +101,7 @@ public interface PostApiService
      *             --800001 业务错误 <br>
      *             --900001 其他错误 <br>
      **/
-    void completionsStream(CompletionReq req, Callback<CompletionRes> callback) throws ApiException;
+    void completionsStream(CompletionReq req, Callback<CompletionRes> callback);
 
 
     /**
@@ -135,7 +135,7 @@ public interface PostApiService
      *             --800001 业务错误 <br>
      *             --900001 其他错误 <br>
      **/
-    void completionsChatStream(CompletionReq req, Callback<CompletionRes> callback) throws ApiException;
+    void completionsChatStream(CompletionReq req, Callback<CompletionRes> callback);
 
 
     /**

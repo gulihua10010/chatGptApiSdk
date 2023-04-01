@@ -24,7 +24,19 @@ public class OpenAiAuth
     /** 代理 */
     private Proxy proxy;
 
+    /** 自定义端点 */
     private String baseUrl;
+
+    /** 超时时间(单位：秒) */
+    private int timeout;
+
+    /** 连接超时(单位：秒) */
+    private int connectionTimeout;
+
+    /** 读取超时(单位：秒) */
+    private int readTimeout;
+    /** 是否重试，只对completions/completionsStream/completionsChat/completionsChatStream有效 */
+    private boolean isReTry;
 
     private OpenAiAuth()
     {
@@ -72,13 +84,86 @@ public class OpenAiAuth
     }
 
 
+    public OpenAiAuth baseUrl(String baseUrl)
+    {
+        this.baseUrl = baseUrl;
+        return this;
+    }
+
+
+    public OpenAiAuth timeout(int timeout)
+    {
+        this.timeout = timeout;
+        this.connectionTimeout = timeout;
+        this.readTimeout = timeout;
+        return this;
+    }
+
+
+    public OpenAiAuth connectionTimeout(int connectionTimeout)
+    {
+        this.connectionTimeout = connectionTimeout;
+        return this;
+    }
+
+
+    public OpenAiAuth readTimeout(int readTimeout)
+    {
+        this.readTimeout = readTimeout;
+        return this;
+    }
+
+
     public String getBaseUrl()
     {
         if (StrUtil.isBlank(baseUrl))
         {
-            return BASE_URL;
+            this.baseUrl = BASE_URL;
         }
         return this.baseUrl;
+    }
+
+
+    public int getTimeout()
+    {
+        if (this.timeout == 0)
+        {
+            this.timeout = 60;
+        }
+        return this.timeout * 1000;
+    }
+
+
+    public int getConnectionTimeout()
+    {
+        if (this.connectionTimeout == 0)
+        {
+            this.connectionTimeout = 60;
+        }
+        return this.connectionTimeout * 1000;
+    }
+
+
+    public int getReadTimeout()
+    {
+        if (this.readTimeout == 0)
+        {
+            this.readTimeout = 60;
+        }
+        return this.readTimeout * 1000;
+    }
+
+
+    public OpenAiAuth isReTry(boolean isReTry)
+    {
+        this.isReTry = isReTry;
+        return this;
+    }
+
+
+    public boolean getIsReTry()
+    {
+        return this.isReTry;
     }
 
 

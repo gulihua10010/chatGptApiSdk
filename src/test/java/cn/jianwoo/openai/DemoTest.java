@@ -52,8 +52,9 @@ public class DemoTest
 {
     static Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 7890));
 
-    static String apiKey = "sk-MS**************************************************U1JI";
-    static PostApiService service = new ChatGptApiPost(new OpenAiAuth(apiKey));
+
+    static String apiKey = "sk-Qg*******************************************JI";
+    static PostApiService service = new ChatGptApiPost(new OpenAiAuth(apiKey, proxy));
 
     /**
      *
@@ -210,8 +211,8 @@ public class DemoTest
 
     public static void main(String[] args) throws Exception
     {
-        completionsStream();
-//        completionsChatStream();
+//        completionsStream();
+        completionsChatStream();
     }
 
 

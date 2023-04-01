@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.Proxy;
 import java.util.concurrent.TimeUnit;
 
+import cn.jianwoo.openai.chatgptapi.bo.HttpFailedBO;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -22,12 +23,12 @@ import okhttp3.sse.EventSources;
 public class HttpAsyncClientUtil
 {
 
-    public static OkHttpClient createHttpClient(Proxy proxy)
+    public static OkHttpClient createHttpClient(Proxy proxy, int connectTimeout, int readTimeout)
     {
         OkHttpClient.Builder client = new OkHttpClient.Builder();
-        client.connectTimeout(60, TimeUnit.SECONDS);
-        client.writeTimeout(60, TimeUnit.SECONDS);
-        client.readTimeout(60, TimeUnit.SECONDS);
+        client.connectTimeout(connectTimeout, TimeUnit.MILLISECONDS);
+        client.writeTimeout(readTimeout, TimeUnit.MILLISECONDS);
+        client.readTimeout(readTimeout, TimeUnit.MILLISECONDS);
         if (null != proxy)
         {
             client.proxy(proxy);
@@ -42,9 +43,8 @@ public class HttpAsyncClientUtil
         execute(httpClient, request, succCallback, null);
     }
 
-
     public static void execute(OkHttpClient httpClient, Request request, Callback<String> succCallback,
-            Callback<String> failCallback)
+            Callback<HttpFailedBO> failCallback)
     {
         EventSource.Factory factory = EventSources.createFactory(httpClient);
         factory.newEventSource(request, new EventSourceListener() {
@@ -82,7 +82,7 @@ public class HttpAsyncClientUtil
                 {
                     if (null != failCallback && null != t)
                     {
-                        failCallback.call(t.getMessage());
+                        failCallback.call(new HttpFailedBO(t.getMessage(), t));
                     }
                     log.error(" asyncClient.execute failed, e: ", t);
                     return;
@@ -95,7 +95,7 @@ public class HttpAsyncClientUtil
                         String content = body.string();
                         if (null != failCallback)
                         {
-                            failCallback.call(content);
+                            failCallback.call(new HttpFailedBO(content, t));
                         }
                         log.error(" asyncClient.execute failed, body: {}, e: {}", content, t);
                     }
@@ -109,7 +109,7 @@ public class HttpAsyncClientUtil
                 {
                     if (null != failCallback && null != t)
                     {
-                        failCallback.call(t.getMessage());
+                        failCallback.call(new HttpFailedBO(t.getMessage(), t));
                     }
                     log.error(" asyncClient.execute failed, e: ", t);
 
