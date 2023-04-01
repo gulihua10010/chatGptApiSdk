@@ -14,6 +14,8 @@
 - 1.0.5 流式调用新增是否传输完成字段;
 - 1.0.6 支持gpt-4，查询账单明细，支持自定义Api端点;
 - 1.0.7 支持设置超时时间，以及超时后是否自动重试(仅支持completions/completionsStream/completionsChat/completionsChatStream 这 4 个 API)，流式响应的返回增加是否成功的字段，如果是失败，则返回失败信息和异常详情，取代之前直接抛出运行时异常;
+- 1.0.8 修复一些已知问题;
+
 
 ## 用法
 
@@ -24,7 +26,7 @@
 <dependency>
     <groupId>cn.jianwoo.openai</groupId>
     <artifactId>ChatGpt-API-SDK</artifactId>
-    <version>1.0.7</version>
+    <version>1.0.8</version>
 </dependency>
 
 <!--如果获取不到依赖，可以指定下仓库地址-->

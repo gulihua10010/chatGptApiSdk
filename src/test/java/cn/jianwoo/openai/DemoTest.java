@@ -131,7 +131,7 @@ public class DemoTest
             // 回调方法
             if (res != null)
             {
-                System.out.println("Done:" + res.getDone() + ", 接收到的数据:  " + res.getAnswer());
+                System.out.println("isSuccess:" + res.getIsSuccess() + ", Done:" + res.getDone() + ", 接收到的数据:  " + res.getAnswer());
 
             }
         });
@@ -203,7 +203,7 @@ public class DemoTest
             // 回调方法
             if (res != null)
             {
-                System.out.println("Done:" + res.getDone() + ", 接收到的数据:  " + res.getChatContent());
+                System.out.println("isSuccess:" + res.getIsSuccess() + ", Done:" + res.getDone() + ", 接收到的数据:  " + res.getChatContent());
             }
         });
     }

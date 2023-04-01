@@ -254,7 +254,7 @@ public class ChatGptApiPost implements PostApiService
             }
 
         }, param -> {
-            if (!req.getIsReTry()
+            if (auth.getIsReTry() && !req.getIsReTry()
                     && (param.getE() instanceof UnknownHostException || param.getE() instanceof SocketTimeoutException
                             || param.getE() instanceof SSLHandshakeException || param.getE() instanceof SSLException))
             {
@@ -382,7 +382,7 @@ public class ChatGptApiPost implements PostApiService
             }
 
         }, param -> {
-            if (!req.getIsReTry()
+            if (auth.getIsReTry() && !req.getIsReTry()
                     && (param.getE() instanceof UnknownHostException || param.getE() instanceof SocketTimeoutException
                             || param.getE() instanceof SSLHandshakeException || param.getE() instanceof SSLException))
             {
