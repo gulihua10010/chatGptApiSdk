@@ -26,7 +26,6 @@ import cn.jianwoo.openai.chatgptapi.bo.AudioRes;
 import cn.jianwoo.openai.chatgptapi.bo.Choices;
 import cn.jianwoo.openai.chatgptapi.bo.CompletionReq;
 import cn.jianwoo.openai.chatgptapi.bo.CompletionRes;
-import cn.jianwoo.openai.chatgptapi.bo.CreditGrantsRes;
 import cn.jianwoo.openai.chatgptapi.bo.EmbeddingsReq;
 import cn.jianwoo.openai.chatgptapi.bo.EmbeddingsRes;
 import cn.jianwoo.openai.chatgptapi.bo.EnginesDataRes;
@@ -1204,42 +1203,6 @@ public class ChatGptApiPost implements PostApiService
         {
             log.error(">>>>enginesRetrieve.response:{}", response.body());
             log.error(">>>>enginesRetrieve.response.parse.exception, e:", e);
-            throw new ApiException(JSON_ERROR, JSON_ERROR_MSG);
-
-        }
-    }
-
-
-    @Override
-    public CreditGrantsRes queryBillingCreditGrants() throws ApiException
-    {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization", auth.getApiKey());
-        HttpResponse response = HttpRequest.get(auth.getBaseUrl() + "/dashboard/billing/credit_grants")
-                .headerMap(headers, true).setProxy(auth.getProxy()).setConnectionTimeout(auth.getConnectionTimeout())
-                .setReadTimeout(auth.getReadTimeout()).execute();
-
-        if (response.getStatus() == 401)
-        {
-            log.error(">>>>queryBillingCreditGrants.response:{}", response.body());
-            throw new ApiException(AUTHORIZATION_ERROR, AUTHORIZATION_ERROR_MSG);
-        }
-        if (response.getStatus() != 200)
-        {
-            log.error(">>>>queryBillingCreditGrants.response:{}", response.body());
-
-            ErrorRes error = JSON.parseObject(response.body(), ErrorRes.class);
-            throw new ApiException(OTHER_ERROR, error.getError().getMessage());
-
-        }
-        try
-        {
-            return JSON.parseObject(response.body(), CreditGrantsRes.class);
-        }
-        catch (Exception e)
-        {
-            log.error(">>>>queryBillingCreditGrants.response:{}", response.body());
-            log.error(">>>>queryBillingCreditGrants.response.parse.exception, e:", e);
             throw new ApiException(JSON_ERROR, JSON_ERROR_MSG);
 
         }

@@ -7,17 +7,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cn.jianwoo.openai.chatgptapi.bo.AudioReq;
-import cn.jianwoo.openai.chatgptapi.bo.AudioRes;
-import cn.jianwoo.openai.chatgptapi.bo.CreditGrantsRes;
-import cn.jianwoo.openai.chatgptapi.bo.MessageReq;
-import cn.jianwoo.openai.chatgptapi.constants.Model;
-import cn.jianwoo.openai.chatgptapi.constants.Role;
 import org.junit.jupiter.api.Test;
 
 import com.alibaba.fastjson2.JSONObject;
 
 import cn.jianwoo.openai.chatgptapi.auth.OpenAiAuth;
+import cn.jianwoo.openai.chatgptapi.bo.AudioReq;
+import cn.jianwoo.openai.chatgptapi.bo.AudioRes;
 import cn.jianwoo.openai.chatgptapi.bo.CompletionReq;
 import cn.jianwoo.openai.chatgptapi.bo.CompletionRes;
 import cn.jianwoo.openai.chatgptapi.bo.EmbeddingsReq;
@@ -33,12 +29,15 @@ import cn.jianwoo.openai.chatgptapi.bo.FineTunesReq;
 import cn.jianwoo.openai.chatgptapi.bo.FineTunesRes;
 import cn.jianwoo.openai.chatgptapi.bo.ImageReq;
 import cn.jianwoo.openai.chatgptapi.bo.ImageRes;
+import cn.jianwoo.openai.chatgptapi.bo.MessageReq;
 import cn.jianwoo.openai.chatgptapi.bo.ModelDataRes;
 import cn.jianwoo.openai.chatgptapi.bo.ModelRes;
 import cn.jianwoo.openai.chatgptapi.bo.ModerationsReq;
 import cn.jianwoo.openai.chatgptapi.bo.ModerationsRes;
 import cn.jianwoo.openai.chatgptapi.bo.ObjDelRes;
 import cn.jianwoo.openai.chatgptapi.completions.FastCompletion;
+import cn.jianwoo.openai.chatgptapi.constants.Model;
+import cn.jianwoo.openai.chatgptapi.constants.Role;
 import cn.jianwoo.openai.chatgptapi.exception.ApiException;
 import cn.jianwoo.openai.chatgptapi.service.PostApiService;
 import cn.jianwoo.openai.chatgptapi.service.impl.ChatGptApiPost;
@@ -528,20 +527,6 @@ public class DemoTest
     }
 
 
-
-    /**
-     *
-     * 查询账户余额
-     *
-     * @author gulihua
-     */
-
-    @Test
-    public void queryBillingCreditGrants() throws ApiException
-    {
-        CreditGrantsRes res = service.queryBillingCreditGrants();
-        System.out.println(JSONObject.toJSONString(res));
-    }
 
 
 

@@ -472,18 +472,4 @@ public interface PostApiService
      *             --900001 其他错误 <br>
      **/
     EnginesDataRes enginesRetrieve(String engineId) throws ApiException;
-
-
-    /**
-     * Billing credit grants<br>
-     *
-     * @author gulihua
-     * @return FineTunesRes
-     * @throws ApiException <br>
-     *             --400001 未授权 <br>
-     *             --500001 响应JSON错误 <br>
-     *             --800001 业务错误 <br>
-     *             --900001 其他错误 <br>
-     **/
-    CreditGrantsRes queryBillingCreditGrants() throws ApiException;
 }
