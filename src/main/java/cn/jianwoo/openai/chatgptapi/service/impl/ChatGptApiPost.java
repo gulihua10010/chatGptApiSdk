@@ -1,8 +1,11 @@
 package cn.jianwoo.openai.chatgptapi.service.impl;
 
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +18,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.ContentType;
@@ -23,6 +27,7 @@ import cn.hutool.http.HttpResponse;
 import cn.jianwoo.openai.chatgptapi.auth.OpenAiAuth;
 import cn.jianwoo.openai.chatgptapi.bo.AudioReq;
 import cn.jianwoo.openai.chatgptapi.bo.AudioRes;
+import cn.jianwoo.openai.chatgptapi.bo.BillingUsage;
 import cn.jianwoo.openai.chatgptapi.bo.Choices;
 import cn.jianwoo.openai.chatgptapi.bo.CompletionReq;
 import cn.jianwoo.openai.chatgptapi.bo.CompletionRes;
@@ -47,13 +52,13 @@ import cn.jianwoo.openai.chatgptapi.bo.ModelRes;
 import cn.jianwoo.openai.chatgptapi.bo.ModerationsReq;
 import cn.jianwoo.openai.chatgptapi.bo.ModerationsRes;
 import cn.jianwoo.openai.chatgptapi.bo.ObjDelRes;
+import cn.jianwoo.openai.chatgptapi.bo.Subscription;
 import cn.jianwoo.openai.chatgptapi.exception.ApiException;
 import cn.jianwoo.openai.chatgptapi.service.PostApiService;
 import cn.jianwoo.openai.chatgptapi.stream.Callback;
 import cn.jianwoo.openai.chatgptapi.stream.HttpAsyncClientUtil;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
@@ -89,6 +94,17 @@ public class ChatGptApiPost implements PostApiService
     public ChatGptApiPost(OpenAiAuth openAiAuth)
     {
         this.auth = openAiAuth;
+        if (StrUtil.isNotBlank(openAiAuth.getUsername()))
+        {
+            System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+            Authenticator.setDefault(new Authenticator() {
+                @Override
+                public PasswordAuthentication getPasswordAuthentication()
+                {
+                    return new PasswordAuthentication(openAiAuth.getUsername(), openAiAuth.getPassword().toCharArray());
+                }
+            });
+        }
 
     }
 
@@ -236,10 +252,9 @@ public class ChatGptApiPost implements PostApiService
                 .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), JSONObject.toJSONString(req)))
                 .header("Authorization", auth.getApiKey()).header("Accept", "text/event-stream").build();
 
-        OkHttpClient httpClient = HttpAsyncClientUtil.createHttpClient(auth.getProxy(), auth.getConnectionTimeout(),
-                auth.getReadTimeout());
+        HttpAsyncClientUtil.initHttpClient(auth.getProxy(), auth);
 
-        HttpAsyncClientUtil.execute(httpClient, request, param -> {
+        HttpAsyncClientUtil.execute(request, param -> {
             try
             {
                 CompletionRes resBO = parseConversation(param);
@@ -364,9 +379,8 @@ public class ChatGptApiPost implements PostApiService
                 .post(RequestBody.create(MediaType.parse(ContentType.JSON.getValue()), JSONObject.toJSONString(req)))
                 .header("Authorization", auth.getApiKey()).header("Accept", "text/event-stream").build();
 
-        OkHttpClient asyncClient = HttpAsyncClientUtil.createHttpClient(auth.getProxy(), auth.getConnectionTimeout(),
-                auth.getReadTimeout());
-        HttpAsyncClientUtil.execute(asyncClient, request, param -> {
+        HttpAsyncClientUtil.initHttpClient(auth.getProxy(), auth);
+        HttpAsyncClientUtil.execute(request, param -> {
             try
             {
                 CompletionRes resBO = parseConversation(param);
@@ -1203,6 +1217,83 @@ public class ChatGptApiPost implements PostApiService
         {
             log.error(">>>>enginesRetrieve.response:{}", response.body());
             log.error(">>>>enginesRetrieve.response.parse.exception, e:", e);
+            throw new ApiException(JSON_ERROR, JSON_ERROR_MSG);
+
+        }
+    }
+
+
+    @Override
+    public Subscription subscription() throws ApiException
+    {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", auth.getApiKey());
+        HttpResponse response = HttpRequest.get(auth.getBaseUrl() + "/dashboard/billing/subscription")
+                .headerMap(headers, true).setProxy(auth.getProxy()).setConnectionTimeout(auth.getConnectionTimeout())
+                .setReadTimeout(auth.getReadTimeout()).execute();
+
+        if (response.getStatus() == 401)
+        {
+            log.error(">>>>subscription.response:{}", response.body());
+            throw new ApiException(AUTHORIZATION_ERROR, AUTHORIZATION_ERROR_MSG);
+        }
+        if (response.getStatus() != 200)
+        {
+            log.error(">>>>subscription.response:{}", response.body());
+
+            ErrorRes error = JSON.parseObject(response.body(), ErrorRes.class);
+            throw new ApiException(OTHER_ERROR, error.getError().getMessage());
+
+        }
+        try
+        {
+            return JSON.parseObject(response.body(), Subscription.class);
+        }
+        catch (Exception e)
+        {
+            log.error(">>>>subscription.response:{}", response.body());
+            log.error(">>>>subscription.response.parse.exception, e:", e);
+            throw new ApiException(JSON_ERROR, JSON_ERROR_MSG);
+
+        }
+    }
+
+
+    @Override
+    public BillingUsage billingUsage(Date startDate, Date endDate) throws ApiException
+    {
+        String start = DateUtil.format(startDate, "yyyy-MM-dd");
+        String end = DateUtil.format(endDate, "yyyy-MM-dd");
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", auth.getApiKey());
+        Map<String, Object> params = new HashMap<>();
+        params.put("start_date", start);
+        params.put("end_date", end);
+        HttpResponse response = HttpRequest.get(auth.getBaseUrl() + "/dashboard/billing/usage").headerMap(headers, true)
+                .form(params).setProxy(auth.getProxy()).setConnectionTimeout(auth.getConnectionTimeout())
+                .setReadTimeout(auth.getReadTimeout()).execute();
+
+        if (response.getStatus() == 401)
+        {
+            log.error(">>>>billingUsage.response:{}", response.body());
+            throw new ApiException(AUTHORIZATION_ERROR, AUTHORIZATION_ERROR_MSG);
+        }
+        if (response.getStatus() != 200)
+        {
+            log.error(">>>>billingUsage.response:{}", response.body());
+
+            ErrorRes error = JSON.parseObject(response.body(), ErrorRes.class);
+            throw new ApiException(OTHER_ERROR, error.getError().getMessage());
+
+        }
+        try
+        {
+            return JSON.parseObject(response.body(), BillingUsage.class);
+        }
+        catch (Exception e)
+        {
+            log.error(">>>>billingUsage.response:{}", response.body());
+            log.error(">>>>billingUsage.response.parse.exception, e:", e);
             throw new ApiException(JSON_ERROR, JSON_ERROR_MSG);
 
         }

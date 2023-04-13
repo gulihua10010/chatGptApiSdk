@@ -15,6 +15,7 @@ It already supports the latest GPT3.5 model and the whisper-1 model, which suppo
 - 1.0.7 Support to set the timeout, and whether timeout after the automatic retry (only support completions/completionsStream/completionsChat/completionsChatStream these four API), current response returned to increase the success of a field, If it is a failure, a failure message and exception details are returned, instead of throwing the runtime exception directly;
 - 1.0.8 Fixed some known problems;
 - 1.0.9 The official has fixed the bug in the billing details. The interface is unavailable and has been removed;
+- 1.0.10 Added bill query function again, optimized stream request (okHttpClient set to singleton), added function of proxy set username and password
 
 
 
@@ -28,7 +29,7 @@ It already supports the latest GPT3.5 model and the whisper-1 model, which suppo
 <dependency>
     <groupId>cn.jianwoo.openai</groupId>
     <artifactId>ChatGpt-API-SDK</artifactId>
-    <version>1.0.9</version>
+    <version>1.0.10</version>
 </dependency>
 
 <!--If the dependency cannot be obtained, you can specify the repository address-->
@@ -628,6 +629,39 @@ The Romance of The Three Kingdoms is a representative work of Chinese classical 
         System.out.println(JSONObject.toJSONString(res));
     }
 
+
+
+    /**
+     *
+     * Account information query: contains the total amount of information
+     *
+     * @author gulihua
+     */
+    
+    @Test
+    public void subscription() throws ApiException
+    {
+        Subscription res = service.subscription();
+        System.out.println(JSONObject.toJSONString(res));
+    }
+
+
+    /**
+     *
+     * The account invocation interface can be used to query the consumption amount for a maximum of 100 days
+     *
+     * @author gulihua
+     */
+    
+    @Test
+    public void billingUsage() throws ApiException
+    {
+        Date startDate = DateUtil.parse("2023-03-01");
+        Date endDate = DateUtil.parse("2023-04-01");
+        BillingUsage res = service.billingUsage(startDate, endDate);
+        System.out.println(JSONObject.toJSONString(res));
+    }
+        
     /**
      *
      * Completion Fastly

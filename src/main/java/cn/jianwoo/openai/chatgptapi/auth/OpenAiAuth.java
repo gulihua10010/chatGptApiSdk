@@ -37,6 +37,14 @@ public class OpenAiAuth
     private int readTimeout;
     /** 是否重试，只对completions/completionsStream/completionsChat/completionsChatStream有效 */
     private boolean isReTry;
+    /** 单个主机最大请求数 */
+    private int maxRequestsPerHost;
+    /** 最大请求数 */
+    private int maxRequests;
+    /** 代理用户名 */
+    private String username;
+    /** 代理密码 */
+    private String password;
 
     private OpenAiAuth()
     {
@@ -114,6 +122,34 @@ public class OpenAiAuth
     }
 
 
+    public OpenAiAuth maxRequestsPerHost(int maxRequestsPerHost)
+    {
+        this.maxRequestsPerHost = maxRequestsPerHost;
+        return this;
+    }
+
+
+    public OpenAiAuth maxRequests(int maxRequests)
+    {
+        this.maxRequests = maxRequests;
+        return this;
+    }
+
+
+    public OpenAiAuth username(String username)
+    {
+        this.username = username;
+        return this;
+    }
+
+
+    public OpenAiAuth password(String password)
+    {
+        this.password = password;
+        return this;
+    }
+
+
     public String getBaseUrl()
     {
         if (StrUtil.isBlank(baseUrl))
@@ -151,6 +187,38 @@ public class OpenAiAuth
             this.readTimeout = 60;
         }
         return this.readTimeout * 1000;
+    }
+
+
+    public String getUsername()
+    {
+        return this.username;
+    }
+
+
+    public String getPassword()
+    {
+        return this.password;
+    }
+
+
+    public int getMaxRequestsPerHost()
+    {
+        if (this.maxRequestsPerHost == 0)
+        {
+            this.maxRequestsPerHost = 64;
+        }
+        return this.maxRequestsPerHost;
+    }
+
+
+    public int getMaxRequests()
+    {
+        if (this.maxRequests == 0)
+        {
+            this.maxRequests = 60;
+        }
+        return this.maxRequests;
     }
 
 

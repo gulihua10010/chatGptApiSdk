@@ -5,8 +5,12 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
+import cn.hutool.core.date.DateUtil;
+import cn.jianwoo.openai.chatgptapi.bo.BillingUsage;
+import cn.jianwoo.openai.chatgptapi.bo.Subscription;
 import org.junit.jupiter.api.Test;
 
 import com.alibaba.fastjson2.JSONObject;
@@ -51,8 +55,7 @@ public class DemoTest
 {
     static Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 7890));
 
-
-    static String apiKey = "sk-Qg*******************************************JI";
+    static String apiKey = "sk-M******************************************************JI";
     static PostApiService service = new ChatGptApiPost(new OpenAiAuth(apiKey, proxy));
 
     /**
@@ -130,7 +133,8 @@ public class DemoTest
             // 回调方法
             if (res != null)
             {
-                System.out.println("isSuccess:" + res.getIsSuccess() + ", Done:" + res.getDone() + ", 接收到的数据:  " + res.getAnswer());
+                System.out.println("isSuccess:" + res.getIsSuccess() + ", Done:" + res.getDone() + ", 接收到的数据:  "
+                        + res.getAnswer());
 
             }
         });
@@ -202,7 +206,8 @@ public class DemoTest
             // 回调方法
             if (res != null)
             {
-                System.out.println("isSuccess:" + res.getIsSuccess() + ", Done:" + res.getDone() + ", 接收到的数据:  " + res.getChatContent());
+                System.out.println("isSuccess:" + res.getIsSuccess() + ", Done:" + res.getDone() + ", 接收到的数据:  "
+                        + res.getChatContent());
             }
         });
     }
@@ -527,7 +532,36 @@ public class DemoTest
     }
 
 
+    /**
+     *
+     * 账户信息查询：里面包含总金额等信息
+     *
+     * @author gulihua
+     */
 
+    @Test
+    public void subscription() throws ApiException
+    {
+        Subscription res = service.subscription();
+        System.out.println(JSONObject.toJSONString(res));
+    }
+
+
+    /**
+     *
+     * 账户调用接口消耗金额信息查询, 最多查询100天
+     *
+     * @author gulihua
+     */
+
+    @Test
+    public void billingUsage() throws ApiException
+    {
+        Date startDate = DateUtil.parse("2023-03-01");
+        Date endDate = DateUtil.parse("2023-04-01");
+        BillingUsage res = service.billingUsage(startDate, endDate);
+        System.out.println(JSONObject.toJSONString(res));
+    }
 
 
     /**

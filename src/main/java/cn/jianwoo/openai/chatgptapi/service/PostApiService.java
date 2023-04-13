@@ -2,6 +2,7 @@ package cn.jianwoo.openai.chatgptapi.service;
 
 import cn.jianwoo.openai.chatgptapi.bo.AudioReq;
 import cn.jianwoo.openai.chatgptapi.bo.AudioRes;
+import cn.jianwoo.openai.chatgptapi.bo.BillingUsage;
 import cn.jianwoo.openai.chatgptapi.bo.CompletionReq;
 import cn.jianwoo.openai.chatgptapi.bo.CompletionRes;
 import cn.jianwoo.openai.chatgptapi.bo.CreditGrantsRes;
@@ -23,8 +24,11 @@ import cn.jianwoo.openai.chatgptapi.bo.ImageReq;
 import cn.jianwoo.openai.chatgptapi.bo.ImageRes;
 import cn.jianwoo.openai.chatgptapi.bo.ModelRes;
 import cn.jianwoo.openai.chatgptapi.bo.ModelDataRes;
+import cn.jianwoo.openai.chatgptapi.bo.Subscription;
 import cn.jianwoo.openai.chatgptapi.exception.ApiException;
 import cn.jianwoo.openai.chatgptapi.stream.Callback;
+
+import java.util.Date;
 
 /**
  * ChatGpt API服务
@@ -472,4 +476,37 @@ public interface PostApiService
      *             --900001 其他错误 <br>
      **/
     EnginesDataRes enginesRetrieve(String engineId) throws ApiException;
+
+
+    /**
+     * 账户信息查询：里面包含总金额等信息<br>
+     * 单位：美元
+     * 
+     * @author gulihua
+     * @return Subscription
+     * @throws ApiException <br>
+     *             --400001 未授权 <br>
+     *             --500001 响应JSON错误 <br>
+     *             --800001 业务错误 <br>
+     *             --900001 其他错误 <br>
+     **/
+    Subscription subscription() throws ApiException;
+
+
+    /**
+     * 账户调用接口消耗金额信息查询, 最多查询100天<br>
+     * totalUsage = 账户总使用金额<br>
+     * 单位：美分
+     * 
+     * @author gulihua
+     * @param startDate 起始时间
+     * @param endDate 结束时间
+     * @return BillingUsage
+     * @throws ApiException <br>
+     *             --400001 未授权 <br>
+     *             --500001 响应JSON错误 <br>
+     *             --800001 业务错误 <br>
+     *             --900001 其他错误 <br>
+     **/
+    BillingUsage billingUsage(Date startDate, Date endDate) throws ApiException;
 }

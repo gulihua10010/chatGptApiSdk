@@ -16,6 +16,7 @@
 - 1.0.7 支持设置超时时间，以及超时后是否自动重试(仅支持completions/completionsStream/completionsChat/completionsChatStream 这 4 个 API)，流式响应的返回增加是否成功的字段，如果是失败，则返回失败信息和异常详情，取代之前直接抛出运行时异常;
 - 1.0.8 修复一些已知问题;
 - 1.0.9 官方已经修复账单明细的 bug，版本1.0.6中的查询账单明细的接口已经不可用，已经移除
+- 1.0.10 再次新增账单查询功能，优化流式请求(okHttpClient设置为单例)，代理新增设置用户名密码功能
 
 
 ## 用法
@@ -27,7 +28,7 @@
 <dependency>
     <groupId>cn.jianwoo.openai</groupId>
     <artifactId>ChatGpt-API-SDK</artifactId>
-    <version>1.0.9</version>
+    <version>1.0.10</version>
 </dependency>
 
 <!--如果获取不到依赖，可以指定下仓库地址-->
@@ -624,6 +625,38 @@ public void fastCompletionAsk() throws ApiException {
         System.out.println(JSONObject.toJSONString(res));
     }
 
+
+
+    /**
+     *
+     * 账户信息查询：里面包含总金额等信息
+     *
+     * @author gulihua
+     */
+
+    @Test
+    public void subscription() throws ApiException
+    {
+        Subscription res = service.subscription();
+        System.out.println(JSONObject.toJSONString(res));
+    }
+
+
+    /**
+     *
+     * 账户调用接口消耗金额信息查询, 最多查询100天
+     *
+     * @author gulihua
+     */
+
+    @Test
+    public void billingUsage() throws ApiException
+    {
+        Date startDate = DateUtil.parse("2023-03-01");
+        Date endDate = DateUtil.parse("2023-04-01");
+        BillingUsage res = service.billingUsage(startDate, endDate);
+        System.out.println(JSONObject.toJSONString(res));
+    }
     /**
      *
      * 快速创建会话

@@ -4,12 +4,17 @@ import java.io.IOException;
 import java.net.Proxy;
 import java.util.concurrent.TimeUnit;
 
+import cn.hutool.core.util.StrUtil;
+import cn.jianwoo.openai.chatgptapi.auth.OpenAiAuth;
 import cn.jianwoo.openai.chatgptapi.bo.HttpFailedBO;
 import lombok.extern.log4j.Log4j2;
+import okhttp3.Authenticator;
+import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okhttp3.Route;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
 import okhttp3.sse.EventSources;
@@ -22,31 +27,52 @@ import okhttp3.sse.EventSources;
 @Log4j2
 public class HttpAsyncClientUtil
 {
+    private static OkHttpClient client;
 
-    public static OkHttpClient createHttpClient(Proxy proxy, int connectTimeout, int readTimeout)
+    public static OkHttpClient initHttpClient(Proxy proxy, OpenAiAuth config)
     {
-        OkHttpClient.Builder client = new OkHttpClient.Builder();
-        client.connectTimeout(connectTimeout, TimeUnit.MILLISECONDS);
-        client.writeTimeout(readTimeout, TimeUnit.MILLISECONDS);
-        client.readTimeout(readTimeout, TimeUnit.MILLISECONDS);
+        if (client != null)
+        {
+            return client;
+        }
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.connectTimeout(config.getConnectionTimeout(), TimeUnit.MILLISECONDS);
+        builder.writeTimeout(config.getReadTimeout(), TimeUnit.MILLISECONDS);
+        builder.readTimeout(config.getReadTimeout(), TimeUnit.MILLISECONDS);
         if (null != proxy)
         {
-            client.proxy(proxy);
+            builder.proxy(proxy);
         }
-        return client.build();
+        if (StrUtil.isNotBlank(config.getUsername()))
+        {
+            Authenticator proxyAuthenticator = new Authenticator() {
+
+                public Request authenticate(Route route, Response response) throws IOException
+                {
+                    String credential = Credentials.basic(config.getUsername(), config.getPassword());
+                    return response.request().newBuilder().header("Proxy-Authorization", credential).build();
+                }
+            };
+            builder.proxyAuthenticator(proxyAuthenticator);
+        }
+
+        client = builder.build();
+        client.dispatcher().setMaxRequestsPerHost(config.getMaxRequestsPerHost());
+        client.dispatcher().setMaxRequests(config.getMaxRequests());
+        return client;
 
     }
 
 
-    public static void execute(OkHttpClient httpClient, Request request, Callback<String> succCallback)
+    public static void execute(Request request, Callback<String> succCallback)
     {
-        execute(httpClient, request, succCallback, null);
+        execute(request, succCallback, null);
     }
 
-    public static void execute(OkHttpClient httpClient, Request request, Callback<String> succCallback,
-            Callback<HttpFailedBO> failCallback)
+
+    public static void execute(Request request, Callback<String> succCallback, Callback<HttpFailedBO> failCallback)
     {
-        EventSource.Factory factory = EventSources.createFactory(httpClient);
+        EventSource.Factory factory = EventSources.createFactory(client);
         factory.newEventSource(request, new EventSourceListener() {
             @Override
             public void onOpen(EventSource eventSource, Response response)

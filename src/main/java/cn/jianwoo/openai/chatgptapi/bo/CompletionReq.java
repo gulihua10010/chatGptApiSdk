@@ -39,13 +39,15 @@ public class CompletionReq implements Serializable
 
     /** The maximum number of tokens to generate in the completion. */
     @JSONField(name = "max_tokens")
-    private Integer maxTokens;
+    @Builder.Default
+    private Integer maxTokens = 2048;
 
     /**
      * What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while
      * lower values like 0.2 will make it more focused and deterministic.
      */
-    private BigDecimal temperature;
+    @Builder.Default
+    private BigDecimal temperature = BigDecimal.ZERO;
 
     /**
      * An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of
@@ -118,26 +120,6 @@ public class CompletionReq implements Serializable
     private String instruction;
 
     private transient Boolean isReTry;
-
-    public Integer getMaxTokens()
-    {
-        if (maxTokens == null)
-        {
-            return 2048;
-        }
-        return this.maxTokens;
-    }
-
-
-    public BigDecimal getTemperature()
-    {
-        if (temperature == null)
-        {
-            return BigDecimal.ZERO;
-        }
-        return this.temperature;
-    }
-
 
     public Boolean getIsReTry()
     {
