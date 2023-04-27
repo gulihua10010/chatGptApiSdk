@@ -16,7 +16,7 @@ It already supports the latest GPT3.5 model and the whisper-1 model, which suppo
 - 1.0.8 Fixed some known problems;
 - 1.0.9 The official has fixed the bug in the billing details. The interface is unavailable and has been removed;
 - 1.0.10 Added bill query function again, optimized stream request (okHttpClient set to singleton), added function of proxy set username and password
-
+- 1.0.11 Fixed bug [issues #17](https://github.com/gulihua10010/chatGptApiSdk/issues/17);
 
 
 
@@ -29,7 +29,7 @@ It already supports the latest GPT3.5 model and the whisper-1 model, which suppo
 <dependency>
     <groupId>cn.jianwoo.openai</groupId>
     <artifactId>ChatGpt-API-SDK</artifactId>
-    <version>1.0.10</version>
+    <version>1.0.11</version>
 </dependency>
 
 <!--If the dependency cannot be obtained, you can specify the repository address-->

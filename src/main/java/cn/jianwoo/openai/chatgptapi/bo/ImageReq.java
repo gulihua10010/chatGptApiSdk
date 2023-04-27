@@ -31,7 +31,7 @@ public class ImageReq implements Serializable
     private Integer n;
 
     /** The size of the generated images. Must be one of 256x256, 512x512, or 1024x1024. */
-    private Integer size;
+    private String size;
 
     /** The format in which the generated images are returned. Must be one of url or b64_json. */
     @JSONField(name = "response_format")
