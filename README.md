@@ -3,6 +3,8 @@
 
 这个 SDK 已经对接了官方的所有 SDK，包括了事件流式(text/event-stream)异步读取数据,
 已经支持最新的GPT3.5模型和whisper-1模型，支持语音功能!
+关于如何使用自己的文本进行微调，已经上传的相关的 demo 文件和 demo 示例，参照[DemoTest.fineTuneCreate和DemoTest.completionsAfterFineTunes](src%2Ftest%2Fjava%2Fcn%2Fjianwoo%2Fopenai%2FDemoTest.java)
+
 
 [English Doc](README_en.md).
 

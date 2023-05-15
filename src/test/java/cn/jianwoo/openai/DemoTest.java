@@ -1,6 +1,7 @@
 package cn.jianwoo.openai;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.ArrayList;
@@ -55,7 +56,7 @@ public class DemoTest
 {
     static Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 7890));
 
-    static String apiKey = "sk-M******************************************************JI";
+    static String apiKey = "sk-M****************************************************************1JI";
     static PostApiService service = new ChatGptApiPost(new OpenAiAuth(apiKey, proxy));
 
     /**
@@ -354,7 +355,7 @@ public class DemoTest
     @Test
     public void fileUpload() throws ApiException
     {
-        File cat = new File("/Users/gulihua/Downloads/ChatGPT-Proxy-main-1/1.jsonl");
+        File cat = new File("/Users/gulihua/tmp/chatGptApiSdk/src/main/resources/json_prepared.jsonl");
         FileReq req = FileReq.builder().purpose("fine-tune").file(cat).build();
         FileDetRes res = service.fileUpload(req);
         System.out.println(JSONObject.toJSONString(res));
@@ -412,8 +413,26 @@ public class DemoTest
     @Test
     public void fineTuneCreate() throws ApiException
     {
-        FineTunesReq req = FineTunesReq.builder().trainingFile("file-2HvmtSTWMTatG5mvRTPerMkn").build();
+        FineTunesReq req = FineTunesReq.builder().trainingFile("file-Cj4zi8QGZQAaVhKzMvL6NsGq")
+                .model(Model.DAVINCI.getName()).suffix("davinci model test01").build();
         FineTunesRes res = service.fineTuneCreate(req);
+        System.out.println(JSONObject.toJSONString(res));
+    }
+
+
+    /**
+     *
+     * 微调之后测试
+     *
+     * @author gulihua
+     */
+    @Test
+    public void completionsAfterFineTunes() throws ApiException
+    {
+        CompletionReq req = CompletionReq.builder().maxTokens(100).stop("END").frequencyPenalty(new BigDecimal(2))
+                .model("davinci:ft-personal:davinci-model-test01-2023-05-15-09-07-39")
+                .prompt("小明的妈妈有三个儿子，大儿子叫大明，二儿子叫二明，三儿子叫什么。").build();
+        CompletionRes res = service.completions(req);
         System.out.println(JSONObject.toJSONString(res));
     }
 
@@ -558,7 +577,7 @@ public class DemoTest
     public void billingUsage() throws ApiException
     {
         Date startDate = DateUtil.parse("2023-03-01");
-        Date endDate = DateUtil.parse("2023-04-01");
+        Date endDate = DateUtil.parse("2023-05-11");
         BillingUsage res = service.billingUsage(startDate, endDate);
         System.out.println(JSONObject.toJSONString(res));
     }

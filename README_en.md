@@ -3,6 +3,9 @@
 This SDK has been connected to all official SDKS, including text/event-stream asynchronously read data
 It already supports the latest GPT3.5 model and the whisper-1 model, which supports voice function!
 
+For details on how to use your own text for fine tuning, have uploaded relevant demo files and demo examples, see[DemoTest.fineTuneCreate和DemoTest.completionsAfterFineTunes](src%2Ftest%2Fjava%2Fcn%2Fjianwoo%2Fopenai%2FDemoTest.java)
+
+
 [中文文档](README.md).
 
 ## Version log
