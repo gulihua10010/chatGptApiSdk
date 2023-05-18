@@ -20,6 +20,7 @@ For details on how to use your own text for fine tuning, have uploaded relevant 
 - 1.0.9 The official has fixed the bug in the billing details. The interface is unavailable and has been removed;
 - 1.0.10 Added bill query function again, optimized stream request (okHttpClient set to singleton), added function of proxy set username and password
 - 1.0.11 Fixed bug [issues #17](https://github.com/gulihua10010/chatGptApiSdk/issues/17);
+- 1.0.12 Fixed the [EmbeddingsReq.java](src%2Fmain%2Fjava%2Fcn%2Fjianwoo%2Fopenai%2Fchatgptapi%2Fbo%2FEmbeddingsReq.java) parameter type problem [issues #23](https://github.com/gulihua10010/chatGptApiSdk/issues/23);
 
 
 
@@ -32,7 +33,7 @@ For details on how to use your own text for fine tuning, have uploaded relevant 
 <dependency>
     <groupId>cn.jianwoo.openai</groupId>
     <artifactId>ChatGpt-API-SDK</artifactId>
-    <version>1.0.11</version>
+    <version>1.0.12</version>
 </dependency>
 
 <!--If the dependency cannot be obtained, you can specify the repository address-->

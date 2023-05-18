@@ -294,7 +294,7 @@ public class DemoTest
     public void embeddingsCreate() throws ApiException
     {
         EmbeddingsReq req = EmbeddingsReq.builder().model(Model.TEXT_EMBEDDING_ADA_002.getName())
-                .input("he food was delicious and the waiter...").build();
+                .input(Collections.singletonList("he food was delicious and the waiter...")).build();
         EmbeddingsRes res = service.embeddingsCreate(req);
         System.out.println(JSONObject.toJSONString(res));
     }

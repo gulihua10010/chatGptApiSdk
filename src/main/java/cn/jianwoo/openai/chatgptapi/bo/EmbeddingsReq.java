@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author gulihua
@@ -34,6 +35,6 @@ public class EmbeddingsReq implements Serializable
      * length.
      *
      */
-    private String input;
+    private List<String> input;
 
 }
