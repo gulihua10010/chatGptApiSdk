@@ -8,6 +8,16 @@
 
 [English Doc](README_en.md).
 
+## 基于此项目的微信小程序和 H5 端已经上线，扫码体验!
+<p align=center>
+  <img src="https://cdn.jianwoo.cn/image/ai/gh_5f16fbb0f72d_1280.jpg" alt="微信小程序" width="200" />
+</p>
+
+官网H5地址:[https://aiget.cc](https://aiget.cc)
+
+微AI聊天v1.0开源(最基础的聊天功能，github地址：https://github.com/gulihua10010/wxmini-chatgpt)，v2.0不开源，功能详见1.0文档，有需要的可以联系官网客服
+
+
 ## 版本日志
 - 1.0.0 支持所有的OpenAI官方接口，支持代理，支持流式传输;
 - 1.0.2 支持最新的GPT-3.5-Turbo模型和Whisper-1模型;
