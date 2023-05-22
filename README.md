@@ -13,7 +13,7 @@
   <img src="https://cdn.jianwoo.cn/image/ai/gh_5f16fbb0f72d_1280.jpg" alt="微信小程序" width="200" />
 </p>
 
-官网H5地址:[https://aiget.cc](https://aiget.cc)
+官网H5地址:[https://chat.uyojo.com](https://chat.uyojo.com)
 
 微AI聊天v1.0开源(最基础的聊天功能，github地址：https://github.com/gulihua10010/wxmini-chatgpt)，v2.0不开源，功能详见1.0文档，有需要的可以联系官网客服
 
