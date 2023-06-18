@@ -15,7 +15,10 @@ public enum Role {
     /** 用户消息 */
     USER("user"),
     /** 助手消息 */
-    ASSISTANT("assistant"),;
+    ASSISTANT("assistant"),
+
+    /** 函数 */
+    FUNCTION("function"),;
 
     private String name;
 

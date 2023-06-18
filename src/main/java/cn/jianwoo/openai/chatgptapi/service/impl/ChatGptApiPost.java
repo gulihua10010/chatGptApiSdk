@@ -1336,7 +1336,15 @@ public class ChatGptApiPost implements PostApiService
                         {
                             if (null != choice.getDelta())
                             {
-                                sb.append(Optional.ofNullable(choice.getDelta().getContent()).orElse(""));
+                                if (StrUtil.isNotBlank(choice.getDelta().getContent()))
+                                {
+                                    sb.append(choice.getDelta().getContent());
+                                }
+                                else if (null != choice.getDelta().getFunctionCall())
+                                {
+                                    sb.append(choice.getDelta().getFunctionCall().getArguments());
+                                }
+
                                 type = 1;
                             }
                             else if (null != choice.getMessage())

@@ -21,7 +21,7 @@ For details on how to use your own text for fine tuning, have uploaded relevant 
 - 1.0.10 Added bill query function again, optimized stream request (okHttpClient set to singleton), added function of proxy set username and password
 - 1.0.11 Fixed bug [issues #17](https://github.com/gulihua10010/chatGptApiSdk/issues/17);
 - 1.0.12 Fixed the [EmbeddingsReq.java](src%2Fmain%2Fjava%2Fcn%2Fjianwoo%2Fopenai%2Fchatgptapi%2Fbo%2FEmbeddingsReq.java) parameter type problem [issues #23](https://github.com/gulihua10010/chatGptApiSdk/issues/23);
-
+- 1.0.13 Add new models, and add function call.
 
 
 ## Usage
@@ -33,7 +33,7 @@ For details on how to use your own text for fine tuning, have uploaded relevant 
 <dependency>
     <groupId>cn.jianwoo.openai</groupId>
     <artifactId>ChatGpt-API-SDK</artifactId>
-    <version>1.0.12</version>
+    <version>1.0.13</version>
 </dependency>
 
 <!--If the dependency cannot be obtained, you can specify the repository address-->
@@ -257,7 +257,7 @@ The Romance of The Three Kingdoms is a representative work of Chinese classical 
 
     /**
      *
-     * Continuous dialogue
+     * Chat(Model 3.5)
      *
      * @author gulihua
      */
@@ -275,7 +275,7 @@ The Romance of The Three Kingdoms is a representative work of Chinese classical 
 
     /**
      *
-     * 使用gpt-3.5-turbo模型聊天
+     * Continuous dialogue(Model 3.5)
      *
      * @author gulihua
      */
@@ -297,7 +297,7 @@ The Romance of The Three Kingdoms is a representative work of Chinese classical 
      }
     /**
      *
-     * Create chat completion(text/event-stream)
+     * Create chat completion(text/event-stream)(Model 3.5)
      *
      * @author gulihua
      */
@@ -316,6 +316,102 @@ The Romance of The Three Kingdoms is a representative work of Chinese classical 
         });
     }
 
+
+
+    /**
+     *
+     * Use Functions
+     *
+     * @author gulihua
+     */
+    @Test
+    public void completionsChatFunctions() throws ApiException
+    {
+        PropertyReq location = PropertyReq.builder().name("location").type("string").description("城市，比如：上海").build();
+        PropertyReq format = PropertyReq.builder().name("format").type("string").description("温度单位")
+            .enums(Arrays.asList("摄氏度", "华氏度")).build();
+        JSONObject properties = new JSONObject();
+        properties.putAll(location.toJSON());
+        properties.putAll(format.toJSON());
+        ParametersReq parametersReq = ParametersReq.builder().required(Arrays.asList("properties", "format"))
+            .properties(properties).build();
+        FunctionsReq functions = FunctionsReq.builder().name("getCurrentWeather").description("查询天气")
+            .parameters(parametersReq).build();
+        MessageReq messageReq = MessageReq.builder().role(Role.USER.getName()).content("南京天气怎么样,并给出穿衣建议").build();
+
+        CompletionReq req = CompletionReq.builder().model(Model.GPT_35_TURBO_16K_0613.getName())
+            .messages(Collections.singletonList(messageReq)).functions(Collections.singletonList(functions))
+            .build();
+        CompletionRes res = service.completionsChat(req);
+//        System.out.println(JSONObject.toJSONString(res));
+//        System.out.println(res.getFunctionArgs());
+        MessageReq messageReq1 = MessageReq.builder().role(Role.ASSISTANT.getName())
+            .content(queryWeather(res.getFunctionArgs().getString("location"))).build();
+
+        req = CompletionReq.builder().model(Model.GPT_35_TURBO_16K_0613.getName())
+            .messages(Arrays.asList(messageReq, messageReq1)).build();
+        res = service.completionsChat(req);
+        System.out.println(JSONObject.toJSONString(res));
+    }
+
+
+    /**
+     *
+     * Use Functions(text/event-stream)
+     *
+     * @author gulihua
+     */
+    public static void completionsChatStreamFunctions() throws Exception
+    {
+        PropertyReq location = PropertyReq.builder().name("location").type("string").description("城市，比如：上海").build();
+        PropertyReq format = PropertyReq.builder().name("format").type("string").description("温度单位")
+            .enums(Arrays.asList("摄氏度", "华氏度")).build();
+        JSONObject properties = new JSONObject();
+        properties.putAll(location.toJSON());
+        properties.putAll(format.toJSON());
+        ParametersReq parametersReq = ParametersReq.builder().required(Arrays.asList("properties", "format"))
+            .properties(properties).build();
+        FunctionsReq functions = FunctionsReq.builder().name("getCurrentWeather").description("查询天气")
+            .parameters(parametersReq).build();
+        MessageReq messageReq = MessageReq.builder().role(Role.USER.getName()).content("南京天气怎么样,并给出穿衣建议").build();
+
+        CompletionReq req = CompletionReq.builder().model(Model.GPT_35_TURBO_16K_0613.getName())
+            .messages(Collections.singletonList(messageReq)).functions(Collections.singletonList(functions))
+            .build();
+        StringBuilder sb = new StringBuilder();
+        service.completionsChatStream(req, res -> {
+            // 回调方法
+            if (res != null)
+            {
+                sb.append(res.getChatContent());
+                // 接收结束
+                if (res.getDone())
+                {
+                    JSONObject args = JSONObject.parseObject(sb.toString());
+                    MessageReq messageReq1 = MessageReq.builder().role(Role.ASSISTANT.getName())
+                        .content(queryWeather(args.getString("location"))).build();
+                    CompletionReq req1 = CompletionReq.builder().model(Model.GPT_35_TURBO_16K_0613.getName())
+                        .messages(Arrays.asList(messageReq, messageReq1)).build();
+                    StringBuilder sb1 = new StringBuilder();
+                    service.completionsChatStream(req1, res1 -> {
+                        // 回调方法
+                        if (res1 != null)
+                        {
+                            System.out.println("isSuccess:" + res1.getIsSuccess() + ", Done:" + res1.getDone()
+                                + ", 接收到的数据:  " + res1.getChatContent());
+                            sb1.append(res1.getChatContent());
+                            if (res1.getDone())
+                            {
+                                System.out.println(sb1);
+                            }
+                
+                        }
+                    });
+                }
+            }
+        });
+
+        }
 
     public static void main(String[] args) throws Exception
     {

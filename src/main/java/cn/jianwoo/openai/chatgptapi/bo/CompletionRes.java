@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+
 import cn.hutool.core.collection.CollUtil;
 import lombok.Builder;
 import lombok.Data;
@@ -72,4 +75,47 @@ public class CompletionRes implements Serializable
 
     }
 
+    public String getFunctionCall()
+    {
+        if (CollUtil.isEmpty(choices))
+        {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Choices c : choices)
+        {
+            if (null != c.getMessage())
+            {
+                sb.append(c.getMessage().getContent());
+            }
+            else if (null != c.getDelta())
+            {
+                sb.append(c.getDelta().getContent());
+            }
+
+        }
+        return sb.toString();
+
+    }
+
+    public JSONObject getFunctionArgs()
+    {
+        JSONObject args = new JSONObject();
+        if (CollUtil.isEmpty(choices))
+        {
+            return args;
+        }
+        Choices c = choices.get(0);
+        if (null == c.getMessage())
+        {
+            return args;
+        }
+        MessageReq messageReq = c.getMessage();
+        if (null == messageReq || null == messageReq.getFunctionCall())
+        {
+            return args;
+        }
+        return JSON.parseObject(messageReq.getFunctionCall().getArguments());
+
+    }
 }

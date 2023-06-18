@@ -5,12 +5,18 @@ import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
 import cn.jianwoo.openai.chatgptapi.bo.BillingUsage;
+import cn.jianwoo.openai.chatgptapi.bo.FunctionsReq;
+import cn.jianwoo.openai.chatgptapi.bo.ParametersReq;
+import cn.jianwoo.openai.chatgptapi.bo.PropertyReq;
 import cn.jianwoo.openai.chatgptapi.bo.Subscription;
 import org.junit.jupiter.api.Test;
 
@@ -56,7 +62,7 @@ public class DemoTest
 {
     static Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 7890));
 
-    static String apiKey = "sk-M****************************************************************1JI";
+    static String apiKey = "sk-M****************************************************I";
     static PostApiService service = new ChatGptApiPost(new OpenAiAuth(apiKey, proxy));
 
     /**
@@ -214,10 +220,128 @@ public class DemoTest
     }
 
 
+    /**
+     *
+     * 使用gpt-3.5-turbo模型聊天(使用函数)
+     *
+     * @author gulihua
+     */
+    @Test
+    public void completionsChatFunctions() throws ApiException
+    {
+        PropertyReq location = PropertyReq.builder().name("location").type("string").description("城市，比如：上海").build();
+        PropertyReq format = PropertyReq.builder().name("format").type("string").description("温度单位")
+                .enums(Arrays.asList("摄氏度", "华氏度")).build();
+        JSONObject properties = new JSONObject();
+        properties.putAll(location.toJSON());
+        properties.putAll(format.toJSON());
+        ParametersReq parametersReq = ParametersReq.builder().required(Arrays.asList("properties", "format"))
+                .properties(properties).build();
+        FunctionsReq functions = FunctionsReq.builder().name("getCurrentWeather").description("查询天气")
+                .parameters(parametersReq).build();
+        MessageReq messageReq = MessageReq.builder().role(Role.USER.getName()).content("南京天气怎么样,并给出穿衣建议").build();
+
+        CompletionReq req = CompletionReq.builder().model(Model.GPT_35_TURBO_16K_0613.getName())
+                .messages(Collections.singletonList(messageReq)).functions(Collections.singletonList(functions))
+                .build();
+        CompletionRes res = service.completionsChat(req);
+//        System.out.println(JSONObject.toJSONString(res));
+//        System.out.println(res.getFunctionArgs());
+        MessageReq messageReq1 = MessageReq.builder().role(Role.ASSISTANT.getName())
+                .content(queryWeather(res.getFunctionArgs().getString("location"))).build();
+
+        req = CompletionReq.builder().model(Model.GPT_35_TURBO_16K_0613.getName())
+                .messages(Arrays.asList(messageReq, messageReq1)).build();
+        res = service.completionsChat(req);
+        System.out.println(JSONObject.toJSONString(res));
+    }
+
+
+    /**
+     *
+     * 使用gpt-3.5-turbo模型聊天(流式, 使用函数)
+     *
+     * @author gulihua
+     */
+    public static void completionsChatStreamFunctions() throws Exception
+    {
+        PropertyReq location = PropertyReq.builder().name("location").type("string").description("城市，比如：上海").build();
+        PropertyReq format = PropertyReq.builder().name("format").type("string").description("温度单位")
+                .enums(Arrays.asList("摄氏度", "华氏度")).build();
+        JSONObject properties = new JSONObject();
+        properties.putAll(location.toJSON());
+        properties.putAll(format.toJSON());
+        ParametersReq parametersReq = ParametersReq.builder().required(Arrays.asList("properties", "format"))
+                .properties(properties).build();
+        FunctionsReq functions = FunctionsReq.builder().name("getCurrentWeather").description("查询天气")
+                .parameters(parametersReq).build();
+        MessageReq messageReq = MessageReq.builder().role(Role.USER.getName()).content("南京天气怎么样,并给出穿衣建议").build();
+
+        CompletionReq req = CompletionReq.builder().model(Model.GPT_35_TURBO_16K_0613.getName())
+                .messages(Collections.singletonList(messageReq)).functions(Collections.singletonList(functions))
+                .build();
+        StringBuilder sb = new StringBuilder();
+        service.completionsChatStream(req, res -> {
+            // 回调方法
+            if (res != null)
+            {
+                sb.append(res.getChatContent());
+                // 接收结束
+                if (res.getDone())
+                {
+                    JSONObject args = JSONObject.parseObject(sb.toString());
+                    MessageReq messageReq1 = MessageReq.builder().role(Role.ASSISTANT.getName())
+                            .content(queryWeather(args.getString("location"))).build();
+                    CompletionReq req1 = CompletionReq.builder().model(Model.GPT_35_TURBO_16K_0613.getName())
+                            .messages(Arrays.asList(messageReq, messageReq1)).build();
+                    StringBuilder sb1 = new StringBuilder();
+                    service.completionsChatStream(req1, res1 -> {
+                        // 回调方法
+                        if (res1 != null)
+                        {
+                            System.out.println("isSuccess:" + res1.getIsSuccess() + ", Done:" + res1.getDone()
+                                    + ", 接收到的数据:  " + res1.getChatContent());
+                            sb1.append(res1.getChatContent());
+                            if (res1.getDone())
+                            {
+                                System.out.println(sb1);
+                            }
+
+                        }
+                    });
+                }
+            }
+        });
+
+    }
+
+
     public static void main(String[] args) throws Exception
     {
 //        completionsStream();
-        completionsChatStream();
+//        completionsChatStream();
+        completionsChatStreamFunctions();
+    }
+
+
+    private static String queryWeather(String city)
+    {
+        city = city.replaceAll("市", "");
+        String url = "https://v0.yiketianqi.com/api?unescape=1&version=v61&appid=35229654&appsecret=o1KeF9bn&city="
+                + city;
+        HttpResponse response = HttpRequest.get(url).execute();
+        JSONObject res = JSONObject.parse(response.body());
+        StringBuilder sb = new StringBuilder();
+        sb.append(res.getString("wea"));
+        sb.append("，");
+        sb.append("温度：");
+        sb.append(res.getString("tem2")).append("~").append(res.getString("tem1"));
+        sb.append("风力：");
+        sb.append(res.getString("win")).append(" ").append(res.getString("win_speed"));
+        sb.append("空气质量：");
+        sb.append(res.getString("air_level"));
+        return sb.toString();
+
     }
 
 

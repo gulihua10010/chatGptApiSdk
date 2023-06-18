@@ -1,14 +1,15 @@
 package cn.jianwoo.openai.chatgptapi.bo;
 
-import com.alibaba.fastjson2.annotation.JSONField;
-import lombok.Builder;
-import lombok.Data;
-import lombok.ToString;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+
+import com.alibaba.fastjson2.annotation.JSONField;
+
+import lombok.Builder;
+import lombok.Data;
+import lombok.ToString;
 
 /**
  * @author gulihua
@@ -119,6 +120,18 @@ public class CompletionReq implements Serializable
      */
     private String instruction;
 
+    /** A list of functions the model may generate JSON inputs for. */
+    private List<FunctionsReq> functions;
+
+    /**
+     * Controls how the model responds to function calls. "none" means the model does not call a function, and responds
+     * to the end-user. "auto" means the model can pick between an end-user or calling a function. Specifying a
+     * particular function via {"name":\ "my_function"} forces the model to call that function. "none" is the default
+     * when no functions are present. "auto" is the default if functions are present.
+     */
+    @JSONField(name = "function_call")
+    private Object functionCall;
+
     private transient Boolean isReTry;
 
     public Boolean getIsReTry()
@@ -129,4 +142,5 @@ public class CompletionReq implements Serializable
         }
         return this.isReTry;
     }
+
 }
